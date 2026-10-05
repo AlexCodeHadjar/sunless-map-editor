@@ -1,0 +1,8 @@
+.godot/
+*.tmp
+*.import
+__pycache__/
+*.egg-info/
+.pytest_cache/
+/build/
+/out/
