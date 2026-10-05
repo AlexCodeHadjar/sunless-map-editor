@@ -31,6 +31,11 @@ static func game_place_name(game: String, lid: String) -> String:
 	return str(_names[game].get(lid, ""))
 
 
+## Путь с прямыми слешами без хвостового «/» (сравнение путей из Windows и из Godot).
+static func norm(p: String) -> String:
+	return p.replace("\\", "/").trim_suffix("/")
+
+
 static func is_game_dir(dir: String) -> bool:
 	return FileAccess.file_exists(dir + "/project.godot") and DirAccess.dir_exists_absolute(dir + "/data")
 
@@ -63,6 +68,7 @@ static func regions(game: String) -> Dictionary:
 ## поэтому экспорт без правок ничего в картинках не меняет.
 static func open_region(game: String, region: String, lib: PackLibrary) -> MapDoc:
 	var info: Dictionary = regions(game).get(region, {})
+	game = norm(game)
 	var doc: MapDoc
 	if bool(info.get("map", false)):
 		var m: Variant = JsonX.read_file(game + "/data/maps/" + str(info.file))
@@ -150,6 +156,7 @@ static func needed(doc: MapDoc) -> Dictionary:
 static func plan(doc: MapDoc, lib: PackLibrary) -> Dictionary:
 	var items: Array = []
 	var errors: Array = []
+	doc.game = norm(doc.game)
 	if not is_game_dir(doc.game):
 		return {"items": [], "errors": ["Не выбрана папка игры (нужна папка с project.godot и data/)"]}
 	# карта
@@ -191,8 +198,21 @@ static func plan(doc: MapDoc, lib: PackLibrary) -> Dictionary:
 		if r.from == "none":
 			items.append({"file": dest, "rel": rel, "kind": kind, "status": "missing", "name": nm})
 			continue
-		if r.from == "game" or str(r.path) == dest:
+		if norm(str(r.path)) == dest:
 			items.append({"file": dest, "rel": rel, "kind": kind, "status": "same", "name": nm})
+			continue
+		if r.from == "game":
+			# картинка из папки игры другого региона — уже в формате игры, копируется как есть
+			var gdata := FileAccess.get_file_as_bytes(str(r.path))
+			var git := {"file": dest, "rel": rel, "kind": kind, "name": nm, "data": gdata}
+			if not FileAccess.file_exists(dest):
+				git["status"] = "new"
+			elif FileAccess.get_file_as_bytes(dest) == gdata:
+				git["status"] = "same"
+				git.erase("data")
+			else:
+				git["status"] = "changed"
+			items.append(git)
 			continue
 		var p: TexPack = lib.get_pack(str(r.pack))
 		var e: Dictionary = p.textures[str(r.tex)]

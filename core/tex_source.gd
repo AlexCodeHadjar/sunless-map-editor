@@ -22,6 +22,11 @@ func resolve(game_name: String) -> Dictionary:
 	var gp := game_file(game_name)
 	if gp != "":
 		return {"from": "game", "pack": "", "tex": game_name, "path": gp}
+	# общая плитка тумана всех карт-планов (import_map_kit.py копирует её из Берега в каждый регион)
+	if s.is_empty() and game_name == "fog_tile" and doc.game != "":
+		var common := "%s/art/map/forgotten_shore/fog_tile.webp" % doc.game
+		if FileAccess.file_exists(common):
+			return {"from": "game", "pack": "", "tex": game_name, "path": common}
 	if lib != null and s.is_empty():
 		for pid: String in lib.find(game_name):
 			var p2: TexPack = lib.get_pack(pid)

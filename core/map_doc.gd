@@ -475,7 +475,7 @@ func to_project() -> Dictionary:
 static func from_project(d: Dictionary, file: String = "") -> MapDoc:
 	var doc := MapDoc.new()
 	doc.path = file
-	doc.game = str(d.get("game", ""))
+	doc.game = str(d.get("game", "")).replace("\\", "/").trim_suffix("/")
 	doc.region = str(d.get("region", ""))
 	doc.chapter = str(d.get("chapter", ""))
 	doc.packs = Array(d.get("packs", []))

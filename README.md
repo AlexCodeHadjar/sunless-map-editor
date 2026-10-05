@@ -31,3 +31,19 @@ godot --headless --path . -s res://tests/run_tests.gd  # тесты
 ![Маршрут](docs/screenshots/route.jpg)
 ![Новая карта из комплектов](docs/screenshots/new_map.jpg)
 ![Экспорт](docs/screenshots/export.jpg)
+
+## Агентский интерфейс (фаза 3, методика CLI-Anything)
+
+`agent-harness/` — пакет `cli-anything-sunless-map` по методике [CLI-Anything](https://github.com/HKUDS/CLI-Anything):
+команды с `--json`, REPL, отмена/повтор, предпросмотр `preview-bundle/v1`. Бэкенд — сам редактор без окна (`cli/cli.gd`),
+поэтому правила у агента и в окне одни и те же. Skill для Claude Code — `skills/cli-anything-sunless-map/SKILL.md`
+(и копия в `.claude/skills/`).
+
+```bash
+pip install -e agent-harness[test]
+cli-anything-sunless-map --json project open-game --region forgotten_shore -o shore.mapproj
+cli-anything-sunless-map -p shore.mapproj route "Каменная платформа" "Костяной хребет"
+cli-anything-sunless-map -p shore.mapproj preview capture --recipe overview
+```
+
+Файлы `utils/repl_skin.py` и `utils/preview_bundle.py` взяты из CLI-Anything (Apache 2.0, см. `agent-harness/LICENSE-CLI-ANYTHING`).
