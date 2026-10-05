@@ -10,6 +10,27 @@ const QUALITY := {"base": 0.82}
 const BACKUPS := "user://backups"
 
 
+static var _names: Dictionary = {}
+
+
+## Русское название места из locations.json игры (места из комплектов игры называются так же) — "" если нет.
+static func game_place_name(game: String, lid: String) -> String:
+	if game == "":
+		return ""
+	if not _names.has(game):
+		var m := {}
+		var locs: Variant = JsonX.read_file(game + "/data/locations.json")
+		if locs is Array:
+			for l: Dictionary in locs:
+				m[str(l.get("id", ""))] = str(l.get("name", ""))
+		var shops: Variant = JsonX.read_file(game + "/data/shops.json")
+		if shops is Array:
+			for s: Dictionary in shops:
+				m[str(s.get("id", ""))] = str(s.get("name", ""))
+		_names[game] = m
+	return str(_names[game].get(lid, ""))
+
+
 static func is_game_dir(dir: String) -> bool:
 	return FileAccess.file_exists(dir + "/project.godot") and DirAccess.dir_exists_absolute(dir + "/data")
 

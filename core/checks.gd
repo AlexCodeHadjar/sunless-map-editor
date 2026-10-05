@@ -100,7 +100,8 @@ static func run(doc: MapDoc, src: TexSource) -> Array:
 	_refs(doc, row, nm)
 
 	# --- подсказки редактора
-	var ids := places.keys()
+	# появляющиеся места стоят на площадках — их точка на карте не важна
+	var ids := places.keys().filter(func(x: String) -> bool: return not doc.is_emerging(x))
 	for i3 in ids.size():
 		var a2: String = ids[i3]
 		var ra := _rect(doc, a2)

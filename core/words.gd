@@ -2,7 +2,7 @@ class_name Words
 extends RefCounted
 ## Слова для человека вместо технических имён (просьба владельца: мало цифр и терминов, расчёты — под капотом).
 
-const STATES := {"dry": "обычный", "dry_b": "обычный, вариант 2", "dry_c": "обычный, вариант 3", "flooded": "под водой",
+const STATES := {"dry": "обычный", "dry_b": "вариант 2", "dry_c": "вариант 3", "flooded": "под водой",
 	"silt": "ил после отлива", "storm": "шторм", "ravaged": "разорено", "burning": "горит", "burned": "сгорело",
 	"alarm": "тревога", "fight": "бой", "damaged": "повреждено", "ruined": "разрушено", "repair": "ремонт",
 	"barricaded": "баррикада", "crowded": "много людей", "overcrowded": "переполнено", "collapsed": "обрушено",
@@ -28,8 +28,7 @@ const TIDES := {"normal": "обычная вода", "warn": "вода подс�
 const KINDS := {"base": "основа", "height": "карта высот", "place": "место", "decal": "метка", "strip": "полоса",
 	"tile": "плитка", "token": "фишка", "tech": "служебная"}
 
-const SERVICES := {"heal": "лечение", "view": "обзор с высоты", "water": "вода", "shop": "лавка", "repair": "починка",
-	"sharpen": "заточка", "unwear": "снятие износа"}
+const SERVICES := {"view": "обзор с высоты — видно дальше", "repair": "починка снаряжения", "equip": "смена снаряжения"}
 
 
 static func state(st: String) -> String:
@@ -55,11 +54,11 @@ static func danger(x: float) -> String:
 
 ## Отдых (психика за ночь) словами.
 static func rest(n: int) -> String:
-	if n >= 16:
+	if n >= 25:
 		return "отличный отдых"
-	if n >= 11:
+	if n >= 15:
 		return "хороший отдых"
-	if n >= 7:
+	if n >= 8:
 		return "так себе отдых"
 	return "почти без отдыха"
 

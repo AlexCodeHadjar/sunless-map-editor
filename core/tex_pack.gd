@@ -38,6 +38,7 @@ var errors: Array = []
 var _zip: ZIPReader
 var _zip_prefix := ""
 var _img_cache: Dictionary = {}
+var _lock := Mutex.new()   ## картинки грузятся и из фоновых потоков (миниатюры)
 
 
 ## Открыть пак по пути (папка или .zip). Ошибки — в errors, пак всё равно возвращается.
@@ -72,9 +73,12 @@ func _walk(dir: String, rel: String, out: PackedStringArray) -> void:
 
 func read_bytes(file: String) -> PackedByteArray:
 	if is_zip:
-		if _zip == null or not _zip.file_exists(_zip_prefix + file):
-			return PackedByteArray()
-		return _zip.read_file(_zip_prefix + file)
+		_lock.lock()
+		var out := PackedByteArray()
+		if _zip != null and _zip.file_exists(_zip_prefix + file):
+			out = _zip.read_file(_zip_prefix + file)
+		_lock.unlock()
+		return out
 	if not FileAccess.file_exists(root + "/" + file):
 		return PackedByteArray()
 	return FileAccess.get_file_as_bytes(root + "/" + file)
@@ -396,15 +400,20 @@ func count_by_kind() -> Dictionary:
 
 ## Полная картинка текстуры (кэш на время сеанса для небольших; основы не кэшируются).
 func image(nm: String) -> Image:
-	if _img_cache.has(nm):
-		return _img_cache[nm]
+	_lock.lock()
+	var cached: Image = _img_cache.get(nm)
+	_lock.unlock()
+	if cached != null:
+		return cached
 	var e: Dictionary = textures.get(nm, {})
 	if e.is_empty():
 		return null
 	var f := str(e.file)
 	var img := ImgInfo.decode(read_bytes(f), f.get_extension())
 	if img != null and img.get_width() <= 1024:
+		_lock.lock()
 		_img_cache[nm] = img
+		_lock.unlock()
 	return img
 
 
