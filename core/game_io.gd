@@ -235,6 +235,15 @@ static func plan(doc: MapDoc, lib: PackLibrary) -> Dictionary:
 			continue
 		var p: TexPack = lib.get_pack(str(r.pack))
 		var e: Dictionary = p.textures[str(r.tex)]
+		# пак «Из игры»: картинка уже в формате игры — копируется как есть, без перекодирования
+		if p.id.begins_with("game_") and not p.is_zip and str(e.file).get_extension() == ext:
+			var gd := p.read_bytes(str(e.file))
+			var gi := {"file": dest, "rel": rel, "kind": kind, "name": nm, "data": gd}
+			gi["status"] = "new" if not FileAccess.file_exists(dest) else ("same" if FileAccess.get_file_as_bytes(dest) == gd else "changed")
+			if gi.status == "same":
+				gi.erase("data")
+			items.append(gi)
+			continue
 		if kind == "decal":
 			kind = str(e.kind) if str(e.kind) in ["decal", "strip", "tile", "tech", "token"] else "decal"
 			# как import_map_kit.py: большие метки (свечение зоны) — 512, обычные — 256; картинки без decal_ — как места

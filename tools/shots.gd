@@ -52,6 +52,8 @@ func _run() -> void:
 			await _new_flow()
 		"v2":
 			await _v2_flow()
+		"v3":
+			await _v3_flow()
 	get_tree().quit()
 
 
@@ -172,3 +174,44 @@ func _v2_flow() -> void:
 	main.props.current_tab = 1
 	await settle()
 	await shot("26_map_tab")
+
+
+## v3: зоны и подвижные угрозы (Мрачный город), угрозы-точки (Город людей), погода, кисть высот (Берег).
+func _v3_flow() -> void:
+	var g: String = main.game_dir()
+	main.open_game_region(g, "dark_city")
+	main.phase_pick.select(4)
+	main.phase_pick.item_selected.emit(4)
+	var zid: String = main.doc.map.zones.keys()[0]
+	main.canvas.select_thing({"kind": "zone", "id": zid})
+	main.props.rebuild()
+	await settle()
+	await shot("30_zone")
+	var mid: String = main.doc.map.movers.keys()[0]
+	main.canvas.select_thing({"kind": "mover", "id": mid})
+	main.props.rebuild()
+	await settle()
+	await shot("31_mover")
+	main.open_game_region(g, "real_city")
+	main.canvas.select_thing({})
+	main.props.rebuild()
+	main.props.current_tab = 1
+	await settle()
+	var sc: ScrollContainer = main.props.get_child(1)
+	sc.scroll_vertical = 100000
+	await settle()
+	await shot("32_threat_table")
+	main.open_game_region(g, "forgotten_shore")
+	main.phase_pick.select(6)
+	main.phase_pick.item_selected.emit(6)
+	main.mode_buttons.tide.button_pressed = true
+	main.tide_pick.select(2)
+	main.tide_pick.item_selected.emit(2)
+	var c: MapCanvas = main.canvas
+	c.brush_size = 0.06
+	c.brush_strength = 1.0
+	c.brush_begin()
+	for i in 12:
+		c.brush_at(Vector2(0.43, 0.55), "raise")
+	await settle()
+	await shot("33_brush_weather")

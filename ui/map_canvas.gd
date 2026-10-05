@@ -8,10 +8,10 @@ signal status(text: String)
 signal delete_requested
 signal hint(text: String)
 
-enum Tool { SELECT, PLACE, PATH, SOCKET, DECAL, RUBBLE, ZONE, ERASER }
+enum Tool { SELECT, PLACE, PATH, SOCKET, DECAL, RUBBLE, ZONE, ERASER, BRUSH }
 
 const TOOL_NAMES := {Tool.SELECT: "Выбор", Tool.PLACE: "Место", Tool.PATH: "Тропа", Tool.SOCKET: "Площадка", Tool.DECAL: "Метка",
-	Tool.RUBBLE: "Завал", Tool.ZONE: "Зона", Tool.ERASER: "Ластик"}
+	Tool.RUBBLE: "Завал", Tool.ZONE: "Зона", Tool.ERASER: "Ластик", Tool.BRUSH: "Кисть высот"}
 const TOOL_HINTS := {
 	Tool.SELECT: "Щёлкните место, тропу или площадку. Тащите место мышью, за уголок — меняйте размер. Shift — медленнее.",
 	Tool.PLACE: "Щёлкните по карте — поставить место, выбранное в паке слева. Или просто перетащите облик места из пака.",
@@ -20,7 +20,8 @@ const TOOL_HINTS := {
 	Tool.DECAL: "Перетащите метку из пака на место или на тропу. Щёлкните метку — её условия справа.",
 	Tool.RUBBLE: "Щёлкните тропу — на ней появится точка завала (тропа может завалиться в игре).",
 	Tool.ZONE: "Щёлкните место — оно станет центром зоны (охват — в шагах по тропам).",
-	Tool.ERASER: "Щёлкните то, что нужно убрать: место, тропу, площадку, метку или завал."}
+	Tool.ERASER: "Щёлкните то, что нужно убрать: место, тропу, площадку, метку или завал.",
+	Tool.BRUSH: "Тяните по карте — земля поднимается. Shift — опустить, Ctrl — сгладить. Вода видна в режиме «Прилив». Сохранить — во вкладке «Карта»."}
 
 var doc: MapDoc
 var src: TexSource
@@ -100,7 +101,7 @@ func _on_tex_ready(_k: String) -> void:
 
 
 func _process(_d: float) -> void:
-	if modes.fog:
+	if doc != null and (modes.fog or weather_on("haze") or weather_on("storm_band") or weather_on("edge_glow")):
 		queue_redraw()
 
 
@@ -197,7 +198,7 @@ func _draw() -> void:
 			_text_at(br.get_center(), "Перетащите сюда основу из пака (вид «Основы»)", 20, UiTheme.DIM)
 	_update_water(br)
 	if layers.height and doc.map.has("height"):
-		var ht := cache.map_tex(src, str(doc.map.height).get_basename(), 2048)
+		var ht: Texture2D = brush_tex if brush_tex != null else cache.map_tex(src, str(doc.map.height).get_basename(), 2048)
 		if ht != null:
 			draw_texture_rect(ht, br, false, Color(1, 1, 1, height_alpha))
 	var dim: bool = modes.graph
@@ -209,6 +210,11 @@ func _draw() -> void:
 		_draw_places()
 	if layers.decals and not modes.graph:
 		_draw_decals()
+	if not modes.graph:
+		_draw_weather()
+		_draw_zones()
+		_draw_movers()
+	_draw_threat_points()
 	if modes.graph:
 		_draw_graph()
 	if modes.fog:
@@ -265,7 +271,7 @@ func _update_water(br: Rect2) -> void:
 	if not show:
 		_water_rect.visible = false
 		return
-	var ht := cache.full_tex(src, str(doc.map.height).get_basename()) if src.exists(str(doc.map.height).get_basename()) else null
+	var ht: Texture2D = brush_tex if brush_tex != null else (cache.full_tex(src, str(doc.map.height).get_basename()) if src.exists(str(doc.map.height).get_basename()) else null)
 	var wt := cache.map_tex(src, str(doc.map.get("water", "water_tile.webp")).get_basename(), 512)
 	if ht == null or wt == null:
 		_water_rect.visible = false
@@ -853,6 +859,12 @@ func _press(p: Vector2, shift: bool, dbl: bool) -> void:
 					doc.begin("Сдвинуть площадку")
 					_drag = {"what": "socket", "id": si, "start": p, "at": to_map(p)}
 				return
+			var tp := threat_point_at(p)
+			if tp != "":
+				_select({"kind": "threat_point", "id": tp})
+				doc.begin("Сдвинуть точку угрозы")
+				_drag = {"what": "threat_point", "id": tp}
+				return
 			var rid := rubble_at(p)
 			if rid != "":
 				_select({"kind": "rubble", "id": rid})
@@ -939,6 +951,14 @@ func _press(p: Vector2, shift: bool, dbl: bool) -> void:
 			status.emit("Зона с центром в «%s» — настройте её справа." % doc.display_name(lid4))
 		Tool.ERASER:
 			_erase_at(p)
+		Tool.BRUSH:
+			if not brush_ready():
+				status.emit("Кисть высот работает, когда у карты есть карта высот (вода).")
+				return
+			brush_begin()
+			var mode := "lower" if Input.is_key_pressed(KEY_SHIFT) else ("smooth" if Input.is_key_pressed(KEY_CTRL) else "raise")
+			_drag = {"what": "brush", "mode": mode}
+			brush_at(to_map(p), mode)
 		Tool.DECAL:
 			var dc2 := decal_at(p)
 			if not dc2.is_empty():
@@ -1002,6 +1022,12 @@ func _motion(p: Vector2, shift: bool) -> void:
 			var m := to_map(p)
 			doc.map.rubble[str(_drag.id)]["at"] = [MapDoc.r3(m.x), MapDoc.r3(m.y)]
 			queue_redraw()
+		"threat_point":
+			var m3 := to_map(p)
+			doc.map.threat.points[str(_drag.id)]["at"] = [MapDoc.r3(m3.x), MapDoc.r3(m3.y)]
+			queue_redraw()
+		"brush":
+			brush_at(to_map(p), str(_drag.mode))
 		"foot":
 			var lid2 := str(_drag.id)
 			var f := clampf((p.y - place_center(lid2).y) / maxf(place_px(lid2), 1.0), 0.0, 0.5)
@@ -1052,7 +1078,7 @@ func _coords(m: Vector2) -> void:
 
 func _release() -> void:
 	var w := str(_drag.get("what", ""))
-	if w in ["move", "resize", "socket", "foot", "rubble"]:
+	if w in ["move", "resize", "socket", "foot", "rubble", "threat_point"]:
 		doc.commit()
 		if w == "move":
 			status.emit("«%s» сдвинуто." % doc.display_name(str(_drag.id)))
@@ -1221,3 +1247,203 @@ func _place_from_pick(m: Vector2) -> void:
 		return
 	var lid := add_place_from_pack(pk, str(e.place), m)
 	_select({"kind": "place", "id": lid})
+
+
+# --- v3: зоны, подвижные угрозы, угрозы-точки, погода, кисть высот -------------------------------
+
+## Радиус зоны в шагах при текущей фазе (как ZoneRules: radius[фаза] или default).
+func zone_radius(z: Dictionary) -> int:
+	var r: Dictionary = z.get("radius", {"default": 0})
+	return int(r.get(sim.phase, r.get("default", 0))) if sim.phase != "" else int(r.get("default", 0))
+
+
+func _draw_zones() -> void:
+	var zones: Dictionary = doc.map.get("zones", {})
+	var adj := MapGraph.adjacency(doc.paths() + _union_sets())
+	for zid: String in zones:
+		var z: Dictionary = zones[zid]
+		var center := str(z.get("center", ""))
+		if not doc.places().has(center):
+			continue
+		var cl: Array = z.get("color", [1.0, 0.3, 0.2])
+		var col := Color(float(cl[0]), float(cl[1]), float(cl[2]))
+		var rad := zone_radius(z)
+		var dist := MapGraph.distances(adj, center)
+		for lid: String in dist:
+			if int(dist[lid]) <= rad and doc.places().has(lid):
+				var c := place_center(lid)
+				draw_circle(c, place_px(lid) * 0.46, Color(col, 0.18))
+				draw_arc(c, place_px(lid) * 0.46, 0, TAU, 48, Color(col, 0.75), 2.5, true)
+		var cc := place_center(center)
+		var on: bool = sel.get("kind", "") == "zone" and str(sel.get("id", "")) == zid
+		draw_arc(cc, place_px(center) * 0.54, 0, TAU, 48, UiTheme.ACCENT if on else col, 4.0, true)
+		_text_at(cc + Vector2(0, -place_px(center) * 0.54 - 12), "%s · %s" % [str(z.get("name", zid)), Words.steps(rad).replace("здесь", "только центр")], 13, col.lightened(0.3))
+
+
+func _draw_movers() -> void:
+	var movers: Dictionary = doc.map.get("movers", {})
+	for mid: String in movers:
+		var mv: Dictionary = movers[mid]
+		var start := str(mv.get("start", ""))
+		var patrol: Array = mv.get("patrol", [])
+		var prev := start
+		for p: String in patrol:
+			if doc.places().has(prev) and doc.places().has(p) and prev != p:
+				_dashed(place_center(prev), place_center(p), Color(1.0, 0.45, 0.4, 0.8), 3.0, 9.0)
+			prev = p
+		if not doc.places().has(start):
+			continue
+		var c := place_center(start) + Vector2(place_px(start) * 0.3, place_px(start) * 0.05)
+		var tex := cache.map_tex(src, str(mv.get("token", "")), 128)
+		var r := clampf(place_px(start) * 0.22, 14.0, 46.0)
+		if tex != null:
+			draw_texture_rect(tex, Rect2(c - Vector2(r, r), Vector2(r, r) * 2.0), false)
+		else:
+			draw_circle(c, r * 0.6, Color(0.6, 0.1, 0.1, 0.9))
+		var on: bool = sel.get("kind", "") == "mover" and str(sel.get("id", "")) == mid
+		draw_arc(c, r, 0, TAU, 32, UiTheme.ACCENT if on else Color(1.0, 0.45, 0.4), 2.5, true)
+		var tgt: String = {"camp": "к лагерю", "noise": "на шум боя", "patrol": "патруль"}.get(str(mv.get("target", "")), "")
+		_text_at(c + Vector2(0, r + 12), "%s %s" % [str(mv.get("name", mid)), tgt], 12, Color(1.0, 0.6, 0.55))
+
+
+## Точки угроз (прорывы Академии, Врата Города) — ромб с номером у своего at.
+func _draw_threat_points() -> void:
+	var pts: Dictionary = doc.map.get("threat", {}).get("points", {})
+	for pid: String in pts:
+		var at: Array = pts[pid].get("at", [])
+		if at.size() != 2:
+			continue
+		var c := to_screen(Vector2(float(at[0]), float(at[1])))
+		var s := 11.0
+		var poly := PackedVector2Array([c + Vector2(0, -s), c + Vector2(s, 0), c + Vector2(0, s), c + Vector2(-s, 0)])
+		draw_colored_polygon(poly, Color(0.55, 0.1, 0.25, 0.9))
+		poly.append(poly[0])
+		var on: bool = sel.get("kind", "") == "threat_point" and str(sel.get("id", "")) == pid
+		draw_polyline(poly, UiTheme.ACCENT if on else Color(1.0, 0.5, 0.7), 2.0, true)
+		_text_at(c + Vector2(0, 20), pid, 12, Color(1.0, 0.6, 0.8))
+
+
+func threat_point_at(p: Vector2) -> String:
+	var pts: Dictionary = doc.map.get("threat", {}).get("points", {})
+	for pid: String in pts:
+		var at: Array = pts[pid].get("at", [])
+		if at.size() == 2 and to_screen(Vector2(float(at[0]), float(at[1]))).distance_to(p) < 13.0:
+			return pid
+	return ""
+
+
+## «Воздух» по фазе (ФТ-30): дымка (haze), полосы бури (storm_band), отсвет по краю (edge_glow) — движутся.
+func weather_on(key: String) -> bool:
+	var w: Dictionary = doc.map.get(key, {})
+	if w.is_empty() or sim.phase == "":
+		return false
+	var ph: Array = w.get("phase", [])
+	return ph.is_empty() or ph.has(sim.phase)
+
+
+func _draw_weather() -> void:
+	var br := base_rect()
+	var t := Time.get_ticks_msec() / 1000.0
+	if weather_on("haze"):
+		var tex := cache.map_tex(src, str(doc.map.haze.get("tex", "")), 512)
+		if tex != null:
+			# дымка плиткой по основе, дышит прозрачностью
+			draw_texture_rect(tex, br, true, Color(1, 1, 1, 0.18 + 0.06 * sin(t * 0.8)))
+	if weather_on("storm_band"):
+		var tex2 := cache.map_tex(src, str(doc.map.storm_band.get("tex", "")), 512)
+		if tex2 != null:
+			for k in 3:
+				var bw := br.size.x * 0.9
+				var bx := br.position.x + fmod(t * 40.0 + k * br.size.x * 0.4, br.size.x + bw) - bw
+				var by := br.position.y + br.size.y * (0.2 + 0.28 * k)
+				var band := Rect2(Vector2(bx, by), Vector2(bw, bw * 0.25))
+				var vis := band.intersection(br)
+				if vis.has_area():
+					var ts := tex2.get_size()
+					var src_r := Rect2((vis.position - band.position) / band.size * ts, vis.size / band.size * ts)
+					draw_texture_rect_region(tex2, vis, src_r, Color(1, 1, 1, 0.55))
+	if weather_on("edge_glow"):
+		var tex3 := cache.map_tex(src, str(doc.map.edge_glow.get("decal", doc.map.edge_glow.get("tex", ""))), 512)
+		if tex3 != null:
+			var gs := br.size.y * 0.6
+			var pulse := 0.7 + 0.3 * sin(t * 1.5)
+			draw_texture_rect(tex3, Rect2(Vector2(br.end.x - gs * 0.8, br.position.y - gs * 0.1), Vector2(gs, gs)), false, Color(1, 1, 1, 0.7 * pulse))
+
+
+# --- кисть высот (ФТ-26) -------------------------------------------------------------------------
+
+var brush_img: Image          ## редактируемая карта высот (L8) — null, пока кистью не рисовали
+var brush_tex: ImageTexture
+var brush_size := 0.04        ## радиус — доля ширины основы
+var brush_strength := 0.5
+var _brush_undo: Array = []
+
+
+func brush_ready() -> bool:
+	if brush_img != null:
+		return true
+	if not doc.map.has("height"):
+		return false
+	var img := src.image(str(doc.map.height).get_basename())
+	if img == null:
+		return false
+	brush_img = img.duplicate()
+	if brush_img.is_compressed():
+		brush_img.decompress()
+	brush_img.convert(Image.FORMAT_L8)
+	brush_tex = ImageTexture.create_from_image(brush_img)
+	return true
+
+
+## Мазок кистью: mode raise | lower | smooth.
+func brush_at(m: Vector2, mode: String) -> void:
+	if not brush_ready():
+		return
+	var w := brush_img.get_width()
+	var h := brush_img.get_height()
+	var cx := m.x * w
+	var cy := m.y * h
+	var r := brush_size * w
+	var amt := 6.0 * brush_strength
+	for y in range(maxi(0, int(cy - r)), mini(h, int(cy + r) + 1)):
+		for x in range(maxi(0, int(cx - r)), mini(w, int(cx + r) + 1)):
+			var d := Vector2(x - cx, y - cy).length() / r
+			if d > 1.0:
+				continue
+			var k := (1.0 - d * d)
+			var v := brush_img.get_pixel(x, y).r * 255.0
+			match mode:
+				"raise":
+					v += amt * k
+				"lower":
+					v -= amt * k
+				"smooth":
+					var sum := 0.0
+					var n := 0
+					for dy in [-2, 0, 2]:
+						for dx in [-2, 0, 2]:
+							var xx := clampi(x + dx, 0, w - 1)
+							var yy := clampi(y + dy, 0, h - 1)
+							sum += brush_img.get_pixel(xx, yy).r * 255.0
+							n += 1
+					v = lerpf(v, sum / n, 0.5 * k * brush_strength)
+			v = clampf(v, 0.0, 255.0)
+			brush_img.set_pixel(x, y, Color(v / 255.0, v / 255.0, v / 255.0))
+	brush_tex.update(brush_img)
+	queue_redraw()
+
+
+func brush_begin() -> void:
+	if brush_ready():
+		_brush_undo.append(brush_img.duplicate())
+		if _brush_undo.size() > 30:
+			_brush_undo.pop_front()
+
+
+func brush_undo() -> bool:
+	if _brush_undo.is_empty():
+		return false
+	brush_img = _brush_undo.pop_back()
+	brush_tex.update(brush_img)
+	queue_redraw()
+	return true

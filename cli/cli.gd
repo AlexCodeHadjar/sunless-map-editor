@@ -56,7 +56,7 @@ func _run() -> void:
 	match cmd:
 		"help":
 			_out({"ok": true, "commands": ["new", "open-game", "regions", "info", "apply", "check", "route", "step", "tide",
-				"export", "unused", "render", "pack-list", "pack-add", "pack-remove", "pack-check", "pack-textures", "pack-manifest"]})
+				"export", "unused", "render", "game-snapshot", "pack-list", "pack-add", "pack-remove", "pack-check", "pack-textures", "pack-manifest"]})
 		"regions":
 			var g := _game()
 			if g == "":
@@ -85,6 +85,16 @@ func _run() -> void:
 			_tide()
 		"export":
 			_export()
+		"game-snapshot":
+			var dg := _doc()
+			if dg == null:
+				return
+			var outp := str(args.get("out", ""))
+			if outp == "":
+				_fail("нужен --out <файл.png>")
+				return
+			var r := GamePreview.run(dg, lib, str(args.get("camp", "")), outp)
+			_out(r, 0 if bool(r.get("ok", false)) else 1)
 		"unused":
 			var d3 := _doc()
 			if d3 != null:

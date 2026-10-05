@@ -175,7 +175,9 @@ func _build_menu() -> Control:
 	_menu(mb, "Проверка", [
 		["Проверить карту", KEY_F7, run_checks],
 		["Проверить игрой (тесты данных)", 0, func() -> void: _game_test("test_content")],
-		["Тест игры «без тупиков»", 0, func() -> void: _game_test("test_travel")]])
+		["Тест игры «без тупиков»", 0, func() -> void: _game_test("test_travel")],
+		[],
+		["Открыть в игре (снимок отрисовкой игры)", KEY_F8, _open_in_game]])
 	_menu(mb, "Справка", [
 		["Как пользоваться", KEY_F1, _help],
 		["О программе", 0, func() -> void: _info("О программе", "Редактор карт SunLess\nСборка карт глав из паков текстур, проверки как в игре, экспорт в data/maps и art/map.\n\nАгентский интерфейс: cli-anything-sunless-map (папка agent-harness).")]])
@@ -197,7 +199,7 @@ func _menu(mb: MenuBar, title: String, items: Array) -> void:
 		if key != 0:
 			var sc := InputEventKey.new()
 			sc.keycode = key
-			sc.ctrl_pressed = key != KEY_F7 and key != KEY_F1
+			sc.ctrl_pressed = not key in [KEY_F1, KEY_F7, KEY_F8]
 			sc.command_or_control_autoremap = sc.ctrl_pressed
 			var shortcut := Shortcut.new()
 			shortcut.events = [sc]
@@ -216,7 +218,7 @@ func _build_toolbar() -> Control:
 	bar.add_child(row)
 	var group := ButtonGroup.new()
 	var keys := {MapCanvas.Tool.SELECT: "V", MapCanvas.Tool.PLACE: "P", MapCanvas.Tool.PATH: "T", MapCanvas.Tool.SOCKET: "S",
-		MapCanvas.Tool.DECAL: "D", MapCanvas.Tool.RUBBLE: "R", MapCanvas.Tool.ZONE: "Z", MapCanvas.Tool.ERASER: "E"}
+		MapCanvas.Tool.DECAL: "D", MapCanvas.Tool.RUBBLE: "R", MapCanvas.Tool.ZONE: "Z", MapCanvas.Tool.ERASER: "E", MapCanvas.Tool.BRUSH: "H"}
 	for t: int in MapCanvas.TOOL_NAMES:
 		var b := Button.new()
 		b.text = MapCanvas.TOOL_NAMES[t]
@@ -526,7 +528,7 @@ func _unhandled_key_input(ev: InputEvent) -> void:
 				accept_event()
 		return
 	var keys := {KEY_V: MapCanvas.Tool.SELECT, KEY_P: MapCanvas.Tool.PLACE, KEY_T: MapCanvas.Tool.PATH, KEY_S: MapCanvas.Tool.SOCKET,
-		KEY_D: MapCanvas.Tool.DECAL, KEY_R: MapCanvas.Tool.RUBBLE, KEY_Z: MapCanvas.Tool.ZONE, KEY_E: MapCanvas.Tool.ERASER}
+		KEY_D: MapCanvas.Tool.DECAL, KEY_R: MapCanvas.Tool.RUBBLE, KEY_Z: MapCanvas.Tool.ZONE, KEY_E: MapCanvas.Tool.ERASER, KEY_H: MapCanvas.Tool.BRUSH}
 	if keys.has(k.keycode):
 		var t: int = keys[k.keycode]
 		tool_buttons[t].button_pressed = true
@@ -1039,3 +1041,49 @@ func _unused_files() -> void:
 				n += 1
 			DirAccess.remove_absolute(dir + f + ".import")
 		_say("Удалено лишних картинок: %d" % n), "Удалить")
+
+
+## «Открыть в игре» (ФТ-41): игра рисует карту своим кодом; новая или изменённая карта — через временный регион,
+## после снимка папка игры возвращается как была.
+func _open_in_game() -> void:
+	if not GameIO.is_game_dir(doc.game):
+		_info("Нет папки игры", "Выберите папку игры.")
+		return
+	var rows := MapChecks.run(doc, src)
+	if not MapChecks.errors(rows).is_empty():
+		props.show_checks(rows)
+		_info("Сначала исправьте ошибки", "Игра не нарисует карту с ошибками — список во вкладке «Проверки».")
+		return
+	var camp := str(canvas.sel.id) if canvas.sel.get("kind", "") == "place" else ""
+	if camp == "":
+		for lid: String in doc.places():
+			if doc.height_of(lid) == "high" and not doc.is_shop(lid):
+				camp = lid
+				break
+	var out := ProjectSettings.globalize_path("user://game_snapshot_%s.png" % doc.region)
+	_say("Игра рисует карту… (если карта новая — временный экспорт и импорт картинок, до минуты)")
+	var res: Array = []
+	var d := doc
+	var l := lib
+	var task := WorkerThreadPool.add_task(func() -> void: res.append(GamePreview.run(d, l, camp, out)))
+	while not WorkerThreadPool.is_task_completed(task):
+		await get_tree().create_timer(0.3).timeout
+	WorkerThreadPool.wait_for_task_completion(task)
+	var r: Dictionary = res[0] if not res.is_empty() else {"ok": false, "error": "нет ответа"}
+	if not bool(r.get("ok", false)):
+		_info("Игра не нарисовала карту", str(r.get("error", "")) + "
+" + str(r.get("log", "")).right(800))
+		return
+	var w := Window.new()
+	w.title = "Карта в игре — %s%s" % [doc.region, " (временный регион, игра возвращена как была)" if bool(r.get("temporary", false)) else ""]
+	w.size = Vector2i(1280, 720)
+	w.close_requested.connect(w.queue_free)
+	var tr := TextureRect.new()
+	tr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.texture = ImageTexture.create_from_image(Image.load_from_file(out))
+	w.add_child(tr)
+	add_child(w)
+	w.popup_centered()
+	_say("Снимок игры: %s" % out)

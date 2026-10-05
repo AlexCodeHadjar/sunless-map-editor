@@ -599,6 +599,18 @@ def export(ctx, dry_run, reimport, force):
     _emit(ctx, res, human)
 
 
+@cli.command("game-shot")
+@click.option("--camp", help="Place where the figure stands (default: first high place)")
+@click.option("-o", "--out", required=True, type=click.Path(), help="PNG to write (1920×1080)")
+@click.pass_context
+def game_shot(ctx, camp, out):
+    """Render the map with the GAME's own code (SleeperMap). A new or edited map goes through a temporary
+    region 'editor_preview' that is removed afterwards — the game folder is left exactly as it was."""
+    p = _project(ctx)
+    res = _call(ctx, "game-snapshot", project=p, camp=_resolve(ctx, camp) if camp else None, out=os.path.abspath(out))
+    _emit(ctx, res, f"✓ game snapshot {res.get('out')}{' (temporary region, cleaned up)' if res.get('temporary') else ''}")
+
+
 # --- preview ----------------------------------------------------------------------------------------
 
 @cli.group()

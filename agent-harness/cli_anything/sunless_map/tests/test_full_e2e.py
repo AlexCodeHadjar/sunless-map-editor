@@ -176,3 +176,35 @@ class TestRealGame:
         assert [i for i in dry["items"] if i["status"] != "same"] == []
         rt = run(["-p", proj, "route", "Каменная платформа", "Костяной хребет"])
         assert rt["steps"] == 4 and rt["names"][0] == "Каменная платформа"
+
+    def test_game_shot_leaves_game_untouched(self, tmp_path):
+        """Render a brand-new map with the game's own renderer; the game folder must stay byte-identical."""
+        import hashlib
+        g = Path(_game_dir())
+        def fingerprint():
+            h = hashlib.sha256()
+            for rel in ("data/locations.json", "data/shops.json"):
+                h.update((g / rel).read_bytes())
+            h.update("|".join(sorted(p.name for p in (g / "data" / "maps").iterdir())).encode())
+            h.update("|".join(sorted(p.name for p in (g / "art" / "map").iterdir())).encode())
+            return h.hexdigest()
+        before = fingerprint()
+        lib = str(tmp_path / "lib.json")
+        base = CLI + ["--json", "--library", lib, "--game", str(g)]
+        run = lambda a: json.loads(subprocess.run(base + a, capture_output=True, text=True, encoding="utf-8").stdout)
+        proj = str(tmp_path / "tiny.mapproj")
+        kit = g / "docs" / "assets" / "kits" / "sunless-chapter4-map-kit"
+        assert run(["project", "new", "--region", "tiny_test", "-o", proj])["ok"]
+        pid = run(["pack", "add", str(kit)])["id"]
+        run(["-p", proj, "map", "texture", "base", pid, "base"])
+        run(["-p", proj, "place", "add", pid, "soul_tree", "0.5", "0.45"])
+        run(["-p", proj, "place", "add", pid, "lake_shore", "0.32", "0.6"])
+        run(["-p", proj, "path", "add", "soul_tree", "lake_shore"])
+        out = str(tmp_path / "game.png")
+        res = run(["-p", proj, "game-shot", "--camp", "soul_tree", "-o", out])
+        assert res["ok"] and res["temporary"], res
+        im = Image.open(out)
+        assert im.size == (1920, 1080)
+        print(f"\n  game snapshot: {out}")
+        assert fingerprint() == before, "game folder changed"
+        assert not (g / ".map_editor_tmp").exists()

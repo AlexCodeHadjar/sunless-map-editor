@@ -189,6 +189,12 @@ func _build_props() -> void:
 		"zone":
 			_zone_props(str(sel.id))
 			return
+		"mover":
+			_mover_props(str(sel.id))
+			return
+		"threat_point":
+			_threat_point_props(str(sel.id))
+			return
 	_props.add_child(UiTheme.header("Ничего не выделено"))
 	_props.add_child(UiTheme.label("Щёлкните место на карте, чтобы увидеть его свойства.\n\nКак собрать карту:\n1. Перетащите основу из пака на холст.\n2. Перетащите облики мест — появятся места.\n3. Инструмент «Тропа» (T): щёлкните два места.\n4. Проверка (F7) и экспорт в игру (Ctrl+E).", 14, UiTheme.DIM, true))
 	_props.add_child(UiTheme.label("Мест на карте: %d, троп: %d" % [doc.places().size(), doc.paths().size()], 14, UiTheme.TEXT))
@@ -454,12 +460,6 @@ func _rubble_props(rid: String) -> void:
 		_props.add_child(UiTheme.label("На тропе %s — %s. В игре тропа может завалиться и снова открыться." % [Words.q(doc.display_name(str(pr[0]))), Words.q(doc.display_name(str(pr[1])))], 13, UiTheme.DIM, true))
 
 
-func _zone_props(zid: String) -> void:
-	_props.add_child(UiTheme.header("Зона"))
-	var z: Dictionary = doc.map.get("zones", {}).get(zid, {})
-	_props.add_child(UiTheme.label(str(z.get("name", zid)), 14))
-
-
 # --- карта ---------------------------------------------------------------------------------------
 
 func _build_map() -> void:
@@ -500,6 +500,7 @@ func _build_map() -> void:
 		func(v: float) -> void: doc.map["zoom"] = snappedf(v, 0.01), "Запас сдвига")
 	_water_props()
 	_groups_props()
+	_v3_map()
 	_sep(_map)
 	_map.add_child(UiTheme.label("Глава игры для новых мест", 14))
 	var ch := LineEdit.new()
@@ -1017,3 +1018,309 @@ func _groups_props() -> void:
 				doc.map["emerge_groups"] = {}
 			doc.map.emerge_groups[gid] = {"sockets": [], "phase": "dawn", "day_in": 1, "count": [1, 1], "sink_after": "storm"})))
 	_map.add_child(nr)
+
+
+# --- v3: зоны, подвижные угрозы, угрозы-точки, погода, кисть высот -------------------------------
+
+func _place_options(ob: OptionButton, current: String, extra: Dictionary = {}) -> void:
+	for k: String in extra:
+		ob.add_item(str(extra[k]))
+		ob.set_item_metadata(ob.item_count - 1, k)
+		if k == current:
+			ob.select(ob.item_count - 1)
+	var ids := doc.places().keys()
+	ids.sort_custom(func(a: String, b: String) -> bool: return doc.display_name(a) < doc.display_name(b))
+	for lid: String in ids:
+		ob.add_item(doc.display_name(lid))
+		ob.set_item_metadata(ob.item_count - 1, lid)
+		if lid == current:
+			ob.select(ob.item_count - 1)
+
+
+## Картинки-метки из подключённых паков (для зон, угроз, погоды).
+func _decal_options(ob: OptionButton, current: String, kinds: Array = ["decal", "strip", "tile", "token"]) -> void:
+	ob.add_item("— нет —")
+	ob.set_item_metadata(0, "")
+	var names := {}
+	for p: TexPack in lib.enabled_packs():
+		for nm: String in p.textures:
+			if str(p.textures[nm].kind) in kinds:
+				names[nm] = p.id
+	var keys := names.keys()
+	keys.sort()
+	for nm2: String in keys:
+		ob.add_item(nm2.trim_prefix("decal_").replace("_", " "))
+		ob.set_item_metadata(ob.item_count - 1, nm2)
+		if nm2 == current:
+			ob.select(ob.item_count - 1)
+	if current != "" and not names.has(current):
+		ob.add_item(current + " (нет в паках)")
+		ob.set_item_metadata(ob.item_count - 1, current)
+		ob.select(ob.item_count - 1)
+
+
+## Выбрать картинку метки: записать имя и источник (пак, где она есть).
+func _set_decal_source(nm: String) -> void:
+	if nm == "" or doc.textures.has(nm):
+		return
+	for p: TexPack in lib.enabled_packs():
+		if p.textures.has(nm):
+			doc.set_source(nm, p.id, nm)
+			return
+
+
+func _zone_props(zid: String) -> void:
+	var zones: Dictionary = doc.map.get("zones", {})
+	if not zones.has(zid):
+		return
+	var z: Dictionary = zones[zid]
+	_props.add_child(UiTheme.header("Зона"))
+	_props.add_child(UiTheme.label("Зона растекается от центра по тропам: охват — сколько шагов. Места в охвате подсвечены её цветом (фаза сверху меняет охват).", 12, UiTheme.DIM, true))
+	var nm := LineEdit.new()
+	nm.text = str(z.get("name", zid))
+	nm.text_submitted.connect(func(t: String) -> void: doc.edit("Зона", func() -> void: doc.map.zones[zid]["name"] = t))
+	nm.focus_exited.connect(func() -> void:
+		if nm.text != str(doc.map.zones.get(zid, {}).get("name", "")):
+			doc.edit("Зона", func() -> void: doc.map.zones[zid]["name"] = nm.text))
+	_props.add_child(UiTheme.label("Название", 14))
+	_props.add_child(nm)
+	_props.add_child(UiTheme.label("Центр", 14))
+	var ob := OptionButton.new()
+	_place_options(ob, str(z.get("center", "")))
+	ob.item_selected.connect(func(k: int) -> void: doc.edit("Центр зоны", func() -> void: doc.map.zones[zid]["center"] = str(ob.get_item_metadata(k))))
+	_props.add_child(ob)
+	var rad: Dictionary = z.get("radius", {"default": 0})
+	for key: String in ["default", "night", "blood_moon", "storm", "ash_storm"]:
+		if key != "default" and not rad.has(key) and key in ["storm", "ash_storm"]:
+			continue
+		var row := HBoxContainer.new()
+		var l := UiTheme.label("Охват: обычно" if key == "default" else "Охват: " + Words.phase(key), 13)
+		l.custom_minimum_size = Vector2(170, 0)
+		row.add_child(l)
+		var sp := SpinBox.new()
+		sp.min_value = -1 if key != "default" else 0
+		sp.max_value = 6
+		sp.value = int(rad.get(key, -1 if key != "default" else 0))
+		sp.tooltip_text = "Шагов по тропам от центра (0 — только центр; −1 — как обычно)"
+		sp.value_changed.connect(func(v: float) -> void:
+			doc.edit("Охват зоны", func() -> void:
+				var r2: Dictionary = doc.map.zones[zid].get("radius", {}).duplicate()
+				if key != "default" and int(v) < 0:
+					r2.erase(key)
+				else:
+					r2[key] = int(v)
+				doc.map.zones[zid]["radius"] = r2))
+		row.add_child(sp)
+		_props.add_child(row)
+	var cr := HBoxContainer.new()
+	cr.add_child(UiTheme.label("Цвет", 14))
+	var cp := ColorPickerButton.new()
+	var cl: Array = z.get("color", [1.0, 0.3, 0.2])
+	cp.color = Color(float(cl[0]), float(cl[1]), float(cl[2]))
+	cp.custom_minimum_size = Vector2(60, 28)
+	cp.popup_closed.connect(func() -> void:
+		doc.edit("Цвет зоны", func() -> void: doc.map.zones[zid]["color"] = [snappedf(cp.color.r, 0.01), snappedf(cp.color.g, 0.01), snappedf(cp.color.b, 0.01)]))
+	cr.add_child(cp)
+	_props.add_child(cr)
+	_props.add_child(UiTheme.label("Метка зоны", 14))
+	var dk := "decal" if z.has("decal") or not z.has("mark") else "mark"
+	var dob := OptionButton.new()
+	_decal_options(dob, str(z.get(dk, "")))
+	dob.item_selected.connect(func(k: int) -> void:
+		var v := str(dob.get_item_metadata(k))
+		doc.edit("Метка зоны", func() -> void:
+			if v == "":
+				doc.map.zones[zid].erase(dk)
+			else:
+				doc.map.zones[zid][dk] = v
+				_set_decal_source(v)))
+	_props.add_child(dob)
+	var camp: Dictionary = z.get("camp", {})
+	_slider(_props, "Опасность ночи в зоне", "Дополнительная опасность лагеря в зоне", 0.0, 1.0, 0.05, float(camp.get("danger", 0.0)),
+		func(v: float) -> String: return Words.danger(v), func(v: float) -> void:
+			var c2: Dictionary = doc.map.zones[zid].get("camp", {})
+			c2["danger"] = snappedf(v, 0.05)
+			doc.map.zones[zid]["camp"] = c2, "Опасность зоны")
+	_sep(_props)
+	var del := UiTheme.button("Убрать зону", "", func() -> void:
+		doc.edit("Убрать зону", func() -> void: doc.map.zones.erase(zid))
+		canvas.select_thing({}))
+	del.add_theme_color_override("font_color", UiTheme.ERROR)
+	_props.add_child(del)
+
+
+func _mover_props(mid: String) -> void:
+	var movers: Dictionary = doc.map.get("movers", {})
+	if not movers.has(mid):
+		return
+	var mv: Dictionary = movers[mid]
+	_props.add_child(UiTheme.header("Подвижная угроза"))
+	_props.add_child(UiTheme.label("Существо ходит по карте: к лагерю отряда, на шум боя или патрулём по местам. Фишка видна у места старта.", 12, UiTheme.DIM, true))
+	var nm := LineEdit.new()
+	nm.text = str(mv.get("name", mid))
+	nm.focus_exited.connect(func() -> void:
+		if nm.text != str(doc.map.movers.get(mid, {}).get("name", "")):
+			doc.edit("Угроза", func() -> void: doc.map.movers[mid]["name"] = nm.text))
+	_props.add_child(UiTheme.label("Название", 14))
+	_props.add_child(nm)
+	_props.add_child(UiTheme.label("Откуда выходит", 14))
+	var st := OptionButton.new()
+	_place_options(st, str(mv.get("start", "")))
+	st.item_selected.connect(func(k: int) -> void: doc.edit("Старт угрозы", func() -> void: doc.map.movers[mid]["start"] = str(st.get_item_metadata(k))))
+	_props.add_child(st)
+	_props.add_child(UiTheme.label("Куда идёт", 14))
+	var tg := OptionButton.new()
+	_place_options(tg, str(mv.get("target", "camp")), {"camp": "к лагерю отряда", "noise": "на шум боя", "patrol": "патрулём по местам"})
+	tg.item_selected.connect(func(k: int) -> void: doc.edit("Цель угрозы", func() -> void: doc.map.movers[mid]["target"] = str(tg.get_item_metadata(k))))
+	_props.add_child(tg)
+	if str(mv.get("target", "")) == "patrol" or mv.has("patrol"):
+		var names: Array = Array(mv.get("patrol", [])).map(func(x: String) -> String: return doc.display_name(x))
+		_props.add_child(UiTheme.label("Патруль (по порядку): %s" % " → ".join(names), 13, UiTheme.TEXT, true))
+		var pr := HBoxContainer.new()
+		var add := OptionButton.new()
+		_place_options(add, "")
+		pr.add_child(add)
+		pr.add_child(UiTheme.button("＋ в патруль", "", func() -> void:
+			doc.edit("Патруль", func() -> void:
+				var a: Array = doc.map.movers[mid].get("patrol", [])
+				a.append(str(add.get_item_metadata(add.selected)))
+				doc.map.movers[mid]["patrol"] = a)))
+		pr.add_child(UiTheme.button("Очистить", "", func() -> void: doc.edit("Патруль", func() -> void: doc.map.movers[mid]["patrol"] = [])))
+		_props.add_child(pr)
+	for key: String in ["token", "tracks"]:
+		_props.add_child(UiTheme.label("Фишка" if key == "token" else "Следы на тропе", 14))
+		var ob := OptionButton.new()
+		_decal_options(ob, str(mv.get(key, "")))
+		ob.item_selected.connect(func(k: int) -> void:
+			var v := str(ob.get_item_metadata(k))
+			doc.edit("Угроза", func() -> void:
+				if v == "":
+					doc.map.movers[mid].erase(key)
+				else:
+					doc.map.movers[mid][key] = v
+					_set_decal_source(v)))
+		_props.add_child(ob)
+	_props.add_child(UiTheme.label("Остальные свойства (бой, испытание, сцепка с зоной)", 13, UiTheme.DIM))
+	var jt := JsonTree.new()
+	_props.add_child(jt)
+	jt.show_data(mv, func(path: Array, val: Variant) -> void:
+		doc.edit("Угроза", func() -> void: JsonTree.set_path(doc.map.movers[mid], path, val)))
+	_sep(_props)
+	var del := UiTheme.button("Убрать угрозу", "", func() -> void:
+		doc.edit("Убрать угрозу", func() -> void: doc.map.movers.erase(mid))
+		canvas.select_thing({}))
+	del.add_theme_color_override("font_color", UiTheme.ERROR)
+	_props.add_child(del)
+
+
+func _threat_point_props(pid: String) -> void:
+	var pts: Dictionary = doc.map.get("threat", {}).get("points", {})
+	if not pts.has(pid):
+		return
+	_props.add_child(UiTheme.header("Точка угрозы %s" % pid))
+	_props.add_child(UiTheme.label("Прорыв или Врата: точку можно тащить на холсте. Ссылки на места проверяются (F7).", 12, UiTheme.DIM, true))
+	var jt := JsonTree.new()
+	_props.add_child(jt)
+	jt.show_data(pts[pid], func(path: Array, val: Variant) -> void:
+		doc.edit("Точка угрозы", func() -> void: JsonTree.set_path(doc.map.threat.points[pid], path, val)))
+
+
+## Вкладка «Карта»: зоны, подвижные угрозы, угрозы-точки, погода, кисть высот.
+func _v3_map() -> void:
+	_sep(_map)
+	_map.add_child(UiTheme.label("Зоны и подвижные угрозы", 14, UiTheme.ACCENT))
+	for zid: String in doc.map.get("zones", {}):
+		_map.add_child(UiTheme.button("Зона «%s»" % doc.map.zones[zid].get("name", zid), "Показать и настроить", func() -> void:
+			canvas.select_thing({"kind": "zone", "id": zid})
+			current_tab = 0))
+	_map.add_child(UiTheme.label("Новая зона: инструмент «Зона» (Z) — щёлкните место-центр.", 12, UiTheme.DIM, true))
+	for mid: String in doc.map.get("movers", {}):
+		_map.add_child(UiTheme.button("Угроза «%s»" % doc.map.movers[mid].get("name", mid), "", func() -> void:
+			canvas.select_thing({"kind": "mover", "id": mid})
+			current_tab = 0))
+	_map.add_child(UiTheme.button("＋ Подвижная угроза", "Существо, которое ходит по карте", func() -> void:
+		var start := str(canvas.sel.id) if canvas.sel.get("kind", "") == "place" else (str(doc.places().keys()[0]) if not doc.places().is_empty() else "")
+		var mid2: String = doc.edit("Подвижная угроза", func() -> String:
+			if not doc.map.has("movers"):
+				doc.map["movers"] = {}
+			var n := 1
+			while doc.map.movers.has("mover%d" % n):
+				n += 1
+			doc.map.movers["mover%d" % n] = {"name": "Новая угроза", "start": start, "target": "camp", "step": 1}
+			return "mover%d" % n)
+		canvas.select_thing({"kind": "mover", "id": mid2})
+		current_tab = 0))
+	# угрозы-точки — таблицей
+	if doc.map.has("threat"):
+		_sep(_map)
+		_map.add_child(UiTheme.label("Угрозы-точки (прорывы, Врата) — таблица свойств", 14, UiTheme.ACCENT))
+		var jt := JsonTree.new()
+		_map.add_child(jt)
+		jt.show_data(doc.map.threat, func(path: Array, val: Variant) -> void:
+			doc.edit("Угроза", func() -> void: JsonTree.set_path(doc.map.threat, path, val)))
+	# погода
+	_sep(_map)
+	_map.add_child(UiTheme.label("Погода и «воздух» по фазам", 14, UiTheme.ACCENT))
+	_map.add_child(UiTheme.label("Видно на холсте, когда сверху выбрана подходящая фаза.", 12, UiTheme.DIM, true))
+	var titles := {"haze": "Дымка над картой", "storm_band": "Полосы бури", "edge_glow": "Отсвет по краю"}
+	for key: String in titles:
+		var w: Dictionary = doc.map.get(key, {})
+		_map.add_child(UiTheme.label(titles[key], 13))
+		var tk := "decal" if key == "edge_glow" else "tex"
+		var ob := OptionButton.new()
+		_decal_options(ob, str(w.get(tk, "")), ["tile", "strip", "decal"])
+		ob.item_selected.connect(func(k: int) -> void:
+			var v := str(ob.get_item_metadata(k))
+			doc.edit(titles[key], func() -> void:
+				if v == "":
+					doc.map.erase(key)
+				else:
+					var w2: Dictionary = doc.map.get(key, {"phase": ["night"]})
+					w2[tk] = v
+					doc.map[key] = w2
+					_set_decal_source(v)))
+		_map.add_child(ob)
+		if not w.is_empty():
+			var flow := HFlowContainer.new()
+			for ph: String in PHASE_LIST:
+				var c := CheckBox.new()
+				c.text = Words.phase(ph)
+				c.button_pressed = Array(w.get("phase", [])).has(ph)
+				c.toggled.connect(func(v2: bool) -> void:
+					doc.edit(titles[key], func() -> void:
+						var a: Array = doc.map[key].get("phase", [])
+						a.erase(ph)
+						if v2:
+							a.append(ph)
+						doc.map[key]["phase"] = a))
+				flow.add_child(c)
+			_map.add_child(flow)
+	# кисть высот
+	if doc.map.has("height"):
+		_sep(_map)
+		_map.add_child(UiTheme.label("Кисть высот (инструмент «Кисть высот», H)", 14, UiTheme.ACCENT))
+		_slider(_map, "Размер кисти", "", 0.01, 0.15, 0.005, canvas.brush_size,
+			func(v: float) -> String: return "тонкая" if v < 0.03 else ("средняя" if v < 0.07 else "широкая"), func(v: float) -> void: canvas.brush_size = v, "")
+		_slider(_map, "Сила", "", 0.1, 1.0, 0.05, canvas.brush_strength,
+			func(v: float) -> String: return "мягко" if v < 0.35 else ("заметно" if v < 0.7 else "сильно"), func(v: float) -> void: canvas.brush_strength = v, "")
+		var br := HBoxContainer.new()
+		br.add_child(UiTheme.button("Отменить мазок", "", func() -> void:
+			if not canvas.brush_undo():
+				message.emit("Мазков кистью ещё не было.")))
+		br.add_child(UiTheme.button("Сохранить карту высот", "В пак «Мои текстуры» (height_<регион>.png); карта будет брать её оттуда", _save_height))
+		_map.add_child(br)
+
+
+func _save_height() -> void:
+	if canvas.brush_img == null:
+		message.emit("Карту высот ещё не меняли кистью.")
+		return
+	var nm := "height_" + doc.region
+	var err := RawImport.save(canvas.brush_img, "height", doc.region, "")
+	if err != "":
+		message.emit(err)
+		return
+	var p := lib.add(RawImport.pack_dir(), RawImport.PACK_ID, RawImport.PACK_NAME)
+	lib.reload(p.id)
+	doc.edit("Карта высот", func() -> void: doc.set_source("height", RawImport.PACK_ID, nm))
+	message.emit("Карта высот сохранена в «Мои текстуры» (%s) и подключена к карте." % nm)

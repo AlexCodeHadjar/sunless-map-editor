@@ -15,6 +15,8 @@ func _init(d: MapDoc, l: PackLibrary) -> void:
 ## {from: pack|game|none, pack, tex, path}
 func resolve(game_name: String) -> Dictionary:
 	var s := doc.source(game_name)
+	if s.has("game_file") and FileAccess.file_exists(str(s.game_file)):
+		return {"from": "game", "pack": "", "tex": game_name, "path": str(s.game_file)}
 	if not s.is_empty():
 		var p: TexPack = lib.get_pack(str(s.get("pack", ""))) if lib != null else null
 		if p != null and p.textures.has(str(s.get("tex", ""))):
