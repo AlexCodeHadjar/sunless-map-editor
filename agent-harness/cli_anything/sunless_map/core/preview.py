@@ -25,6 +25,7 @@ RECIPES = {
     "graph": "Graph mode: nodes by height, unconnected places in red",
     "route": "Steps from --from and the shortest path to --to",
     "tide": "Flooded places at the chosen --tide (flood by default)",
+    "game": "As the player sees it: 16:9 window, zoom and view_top, figure at --from, fog of the unknown",
     "overview": "plain + graph (+ tide if the map has water)",
 }
 
@@ -52,7 +53,7 @@ def capture(project_path: str, recipe: str = "plain", width: int = 1600, extra: 
     bundle_dir = prep["bundle_dir"]
     art_dir = prep["artifacts_dir"]
     shots = []
-    modes = {"plain": ["plain"], "graph": ["graph"], "route": ["route"], "tide": ["tide"],
+    modes = {"plain": ["plain"], "graph": ["graph"], "route": ["route"], "tide": ["tide"], "game": ["game"],
              "overview": ["plain", "graph"] + (["tide"] if "height" in proj["map"] else [])}[recipe]
     warnings = []
     for i, mode in enumerate(modes):
@@ -61,7 +62,7 @@ def capture(project_path: str, recipe: str = "plain", width: int = 1600, extra: 
             res = _render(project_path, out, mode, width, extra, library)
             shots.append(pb.artifact_record(bundle_dir, out, artifact_id=mode, role="hero" if i == 0 else "gallery",
                                             kind="image", label={"plain": "Карта", "graph": "Граф", "route": "Маршрут",
-                                                                 "tide": "Прилив"}[mode],
+                                                                 "tide": "Прилив", "game": "Как у игрока"}[mode],
                                             media_type="image/png", width=res.get("width"), height=res.get("height")))
         except backend.BackendError as exc:
             warnings.append(f"{mode}: {exc}")

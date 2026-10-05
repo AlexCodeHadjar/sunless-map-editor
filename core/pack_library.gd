@@ -70,6 +70,8 @@ func add(path: String, fixed_id: String = "", title: String = "") -> TexPack:
 		e2["name"] = title
 	entries.append(e2)
 	var p := _open(e2)
+	e2["snapshot"] = signature(p)
+	e2["version"] = p.version
 	save()
 	changed.emit()
 	return p
@@ -141,3 +143,60 @@ func find(nm: String) -> Array:
 		if p.textures.has(nm):
 			out.append(p.id)
 	return out
+
+
+# --- обновление пака (ФТ-04) ---------------------------------------------------------------------
+
+## Отпечаток текстур пака: имя → «файл|размер|время» (у архива — по содержимому).
+static func signature(p: TexPack) -> Dictionary:
+	var out := {}
+	for nm: String in p.textures:
+		var f := str(p.textures[nm].file)
+		if p.is_zip:
+			out[nm] = "%s|%s" % [f, p.file_hash(nm)]
+		else:
+			var path := p.root + "/" + f
+			var fa := FileAccess.open(path, FileAccess.READ)
+			var ln := fa.get_length() if fa != null else 0
+			if fa != null:
+				fa.close()
+			out[nm] = "%s|%d|%d" % [f, ln, FileAccess.get_modified_time(path)]
+	return out
+
+
+func entry(pack_id: String) -> Dictionary:
+	for e: Dictionary in entries:
+		if str(e.get("id", "")) == pack_id:
+			return e
+	return {}
+
+
+## Что изменилось в паке с момента подключения/последнего принятия: {new, changed, missing, version_was, version}.
+func diff(pack_id: String) -> Dictionary:
+	var e := entry(pack_id)
+	var p := reload(pack_id)
+	if p == null or e.is_empty():
+		return {}
+	var was: Dictionary = e.get("snapshot", {})
+	var now := signature(p)
+	var out := {"new": [], "changed": [], "missing": [], "version_was": int(e.get("version", p.version)), "version": p.version}
+	for nm: String in now:
+		if not was.has(nm):
+			out.new.append(nm)
+		elif str(was[nm]) != str(now[nm]):
+			out.changed.append(nm)
+	for nm2: String in was:
+		if not now.has(nm2):
+			out.missing.append(nm2)
+	return out
+
+
+## Принять текущее состояние пака как известное.
+func accept(pack_id: String) -> void:
+	var e := entry(pack_id)
+	var p := get_pack(pack_id)
+	if e.is_empty() or p == null:
+		return
+	e["snapshot"] = signature(p)
+	e["version"] = p.version
+	save()

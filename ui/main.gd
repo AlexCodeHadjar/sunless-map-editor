@@ -111,7 +111,9 @@ func _build() -> void:
 	canvas.custom_minimum_size = Vector2(400, 300)
 	split2.add_child(canvas)
 	var right := PanelContainer.new()
+	right.custom_minimum_size = Vector2(360, 0)
 	props = PropsPanel.new()
+	props.clip_tabs = true
 	right.add_child(props)
 	split2.add_child(right)
 	split2.split_offset = -10
@@ -150,6 +152,7 @@ func _build_menu() -> Control:
 		[],
 		["Экспорт в игру…", KEY_E, export_dialog],
 		["Выбрать папку игры…", 0, _pick_game_dir],
+		["Лишние картинки в папке игры…", 0, _unused_files],
 		[],
 		["Выход", 0, func() -> void: _quit()]])
 	_menu(mb, "Правка", [
@@ -166,6 +169,8 @@ func _build_menu() -> Control:
 		["Подключить папку…", 0, _add_pack_folder],
 		["Подключить архив .zip…", 0, _add_pack_zip],
 		["Подключить комплекты игры (docs/assets/kits)", 0, _add_game_kits],
+		["Картинки из генерации → «Мои текстуры»…", 0, func() -> void: _raw_import([])],
+		["Обновить выбранный пак (что изменилось)", 0, _update_pack],
 		["Проверить все паки", 0, func() -> void: _check_pack("")]])
 	_menu(mb, "Проверка", [
 		["Проверить карту", KEY_F7, run_checks],
@@ -567,11 +572,7 @@ func _on_files_dropped(files: PackedStringArray) -> void:
 			_added(lib.add(f))
 		elif f.get_extension().to_lower() in ["png", "webp", "jpg"]:
 			_raw_import([f])
-
-
-## Импорт «сырых» картинок (ФТ-06) — в фазе v2.
-func _raw_import(_files: Array) -> void:
-	_say("Картинки из генерации: перетащите папку целиком — она подключится как пак.")
+			return
 
 
 func _add_game_kits() -> void:
@@ -616,6 +617,7 @@ func _file_dialog(mode: int, filters: Array, title: String, cb: Callable, save_n
 	if g != "":
 		fd.current_dir = g.get_base_dir()
 	fd.file_selected.connect(func(p: String) -> void: cb.call(p))
+	fd.files_selected.connect(func(ps: PackedStringArray) -> void: cb.call(ps))
 	fd.dir_selected.connect(func(p: String) -> void: cb.call(p))
 	fd.canceled.connect(fd.queue_free)
 	add_child(fd)
@@ -839,11 +841,6 @@ func _game_test(only: String) -> void:
 	_run_godot(GameIO.game_test_args(doc.game, only), "Проверка игрой (%s)" % only)
 
 
-## Режим «Игра» (ФТ-40) — окно 16:9 как у игрока; в фазе v2.
-func _game_view() -> void:
-	_say("Режим «Игра» появится в следующей фазе.")
-
-
 func _help() -> void:
 	_info("Как пользоваться", "1. «Паки» → подключите папку с текстурами (или «Подключить комплекты игры»).\n2. «Файл» → «Открыть карту из игры» или «Новый проект».\n3. Перетащите основу из пака на холст, затем облики мест — появятся места. Бросьте облик на место — у места появится новый облик.\n4. Инструмент «Тропа» (T): щёлкните два места. Ещё раз — тропа уберётся.\n5. Инструмент «Площадка» (S): места для появляющихся мест.\n6. Справа — свойства: название, размер, высота над водой, лагерь.\n7. F7 — проверка (как в игре). Ctrl+E — экспорт в игру со списком изменений.\n\nКолесо мыши — масштаб, средняя кнопка или пробел + мышь — сдвиг. Ctrl+Z / Ctrl+Y — отмена и повтор. Home — вся карта.\nРежимы: «Граф» — связность, «Маршрут» — шаги и путь, «Прилив» — вода, «Шаг фигуры» — куда можно пойти, «Туман» — что видно игроку.")
 
@@ -860,3 +857,185 @@ func _quit() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_autosave_now()
+
+
+## Импорт «сырых» картинок из генерации (ФТ-06): мастер — вид, имя, облик, обрезка и центровка, хромакей.
+func _raw_import(files: Array) -> void:
+	if files.is_empty():
+		_file_dialog(FileDialog.FILE_MODE_OPEN_FILES, ["*.png, *.webp, *.jpg ; Картинки"], "Картинки из генерации", func(p: Variant) -> void: _raw_import(Array(p) if p is PackedStringArray else [p]))
+		return
+	var queue: Array = files.duplicate()
+	_raw_step(queue)
+
+
+func _raw_step(queue: Array) -> void:
+	if queue.is_empty():
+		var p := lib.add(RawImport.pack_dir(), RawImport.PACK_ID, RawImport.PACK_NAME)
+		lib.reload(p.id)
+		packs.refresh_packs()
+		packs.select_pack(p.id)
+		_say("Картинки сохранены в пак «Мои текстуры» — их можно перетаскивать на карту.")
+		return
+	var file: String = queue.pop_front()
+	var src_img := Image.load_from_file(file)
+	if src_img == null:
+		_info("Не открыть картинку", file)
+		_raw_step(queue)
+		return
+	var d := ConfirmationDialog.new()
+	d.title = "Новая картинка: " + file.get_file()
+	d.ok_button_text = "Сохранить в «Мои текстуры»"
+	d.cancel_button_text = "Пропустить"
+	var v := VBoxContainer.new()
+	v.custom_minimum_size = Vector2(640, 0)
+	var row := HBoxContainer.new()
+	var pv := TextureRect.new()
+	pv.custom_minimum_size = Vector2(260, 260)
+	pv.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pv.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	row.add_child(pv)
+	var form := VBoxContainer.new()
+	form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	form.add_child(UiTheme.label("Что это", 14))
+	var kind := OptionButton.new()
+	var kinds := ["place", "decal", "strip", "base", "height", "tile", "token"]
+	for k: String in kinds:
+		kind.add_item(str(Words.KINDS[k]).capitalize())
+	var guess := TexPack.guess_kind(file.get_file().get_basename(), {"w": src_img.get_width(), "h": src_img.get_height()})
+	kind.select(maxi(0, kinds.find(guess if guess != "" else "place")))
+	form.add_child(kind)
+	var sp := TexPack.split_state(TexPack.slug(file.get_file().get_basename()))
+	form.add_child(UiTheme.label("Имя (латиницей): место, метка или основа", 14))
+	var nm := LineEdit.new()
+	nm.text = str(sp[0]) if not sp.is_empty() else TexPack.slug(file.get_file().get_basename())
+	form.add_child(nm)
+	form.add_child(UiTheme.label("Облик места", 14))
+	var st := OptionButton.new()
+	for s: String in TexPack.STATES:
+		st.add_item("%s (%s)" % [Words.state(s), s])
+		st.set_item_metadata(st.item_count - 1, s)
+	var want := str(sp[1]) if not sp.is_empty() else "dry"
+	for i in st.item_count:
+		if str(st.get_item_metadata(i)) == want:
+			st.select(i)
+	form.add_child(st)
+	var crop := CheckBox.new()
+	crop.text = "Обрезать пустые края и поставить по центру квадрата"
+	crop.button_pressed = true
+	form.add_child(crop)
+	var chroma := CheckBox.new()
+	chroma.text = "Убрать пурпурный фон (хромакей)"
+	var corner := src_img.get_pixel(1, 1)
+	chroma.button_pressed = corner.r > 0.8 and corner.b > 0.8 and corner.g < 0.3
+	form.add_child(chroma)
+	var cut := CheckBox.new()
+	cut.text = "Фишка: убрать землю под существом"
+	form.add_child(cut)
+	var strength := HSlider.new()
+	strength.min_value = 0.1
+	strength.max_value = 1.0
+	strength.step = 0.05
+	strength.value = 0.5
+	strength.tooltip_text = "Сколько снизу убирать: левее — бережнее, правее — сильнее"
+	form.add_child(strength)
+	row.add_child(form)
+	v.add_child(row)
+	d.add_child(v)
+	add_child(d)
+	var result := [null]
+	var refresh := func() -> void:
+		var k2: String = kinds[kind.selected]
+		var im := RawImport.prepare(src_img, k2, crop.button_pressed, chroma.button_pressed)
+		if cut.button_pressed:
+			im = RawImport.cut_base(im, strength.value)
+		result[0] = im
+		var small := im.duplicate()
+		small.resize(260, maxi(1, int(260.0 * small.get_height() / small.get_width())))
+		pv.texture = ImageTexture.create_from_image(small)
+		st.disabled = k2 != "place"
+		cut.visible = k2 == "token"
+		strength.visible = k2 == "token" and cut.button_pressed
+	for c: Control in [crop, chroma, cut]:
+		(c as BaseButton).toggled.connect(func(_v: bool) -> void: refresh.call())
+	kind.item_selected.connect(func(_i: int) -> void: refresh.call())
+	strength.drag_ended.connect(func(_c: bool) -> void: refresh.call())
+	refresh.call()
+	d.confirmed.connect(func() -> void:
+		var err := RawImport.save(result[0], kinds[kind.selected], nm.text, str(st.get_item_metadata(st.selected)))
+		if err != "":
+			_info("Не сохранить", err)
+		d.queue_free()
+		_raw_step(queue))
+	d.canceled.connect(func() -> void:
+		d.queue_free()
+		_raw_step(queue))
+	d.max_size = Vector2i(900, 700)
+	d.popup_centered()
+
+
+## Обновление пака (ФТ-04): новые, изменённые и пропавшие текстуры и где они в этой карте.
+func _update_pack() -> void:
+	var pid := packs._current_pack()
+	if pid == "" or pid == PackPanel.ALL:
+		_info("Обновить пак", "Выберите пак в списке слева.")
+		return
+	var df := lib.diff(pid)
+	if df.is_empty():
+		return
+	cache.clear()
+	var used := {}
+	for k: String in doc.textures:
+		var s := doc.source(k)
+		if str(s.get("pack", "")) == pid:
+			used[str(s.tex)] = k
+	var lines: Array = []
+	if df.version != df.version_was:
+		lines.append("Версия пака: %d → %d" % [df.version_was, df.version])
+	for key: String in ["new", "changed", "missing"]:
+		var title: String = {"new": "Новые", "changed": "Изменённые", "missing": "Пропавшие"}[key]
+		var arr: Array = df[key]
+		if arr.is_empty():
+			continue
+		lines.append("%s (%d):" % [title, arr.size()])
+		for nm: String in arr.slice(0, 30):
+			lines.append("   %s%s" % [nm, ("  — в карте: " + str(used[nm])) if used.has(nm) else ""])
+	if lines.is_empty():
+		_info("Обновить пак", "В паке ничего не изменилось.")
+		return
+	packs.refresh_packs()
+	canvas.queue_redraw()
+	_confirm("Пак изменился:\n" + "\n".join(lines) + "\n\nПринять изменения (запомнить эту версию пака)?", func() -> void:
+		lib.accept(pid)
+		_say("Новая версия пака принята."), "Принять")
+
+
+## Режим «Игра» (ФТ-40): окно 16:9 как у игрока.
+func _game_view() -> void:
+	var camp := ""
+	if canvas.sel.get("kind", "") == "place":
+		camp = str(canvas.sel.id)
+	if camp == "":
+		for lid: String in doc.places():
+			if doc.height_of(lid) == "high" and not doc.is_shop(lid):
+				camp = lid
+				break
+	if camp == "" and not doc.places().is_empty():
+		camp = doc.places().keys()[0]
+	GameView.open_for(self, doc, src, cache, lib, camp, true)
+	_say("Фигура — у «%s» (выделите другое место перед «Игрой», чтобы поставить её туда). Карту можно сдвигать мышью." % doc.display_name(camp) if camp != "" else "")
+
+
+## Лишние картинки в папке региона (ФТ-45): удалить — только с подтверждением.
+func _unused_files() -> void:
+	var unused := GameIO.unused_files(doc)
+	if unused.is_empty():
+		_info("Лишние картинки", "Все картинки в art/map/%s/ используются картой." % doc.region)
+		return
+	_confirm("Карта больше не использует %d картинок в art/map/%s/:\n%s\n\nУдалить их из папки игры? (Это нельзя отменить в редакторе; файлы под git можно вернуть через git.)" % [unused.size(), doc.region, "\n".join(unused.slice(0, 25))], func() -> void:
+		var dir := "%s/art/map/%s/" % [doc.game, doc.region]
+		var n := 0
+		for f: String in unused:
+			if DirAccess.remove_absolute(dir + f) == OK:
+				n += 1
+			DirAccess.remove_absolute(dir + f + ".import")
+		_say("Удалено лишних картинок: %d" % n), "Удалить")

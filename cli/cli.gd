@@ -574,6 +574,8 @@ func _render() -> void:
 	var w := int(args.get("width", 1600))
 	var aspect := d.base_aspect()
 	var h := int(w / aspect) if not args.has("height") else int(args.height)
+	if str(args.get("mode", "")) == "game":
+		h = int(w * 9.0 / 16.0)
 	var vp := SubViewport.new()
 	vp.size = Vector2i(w, h)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -594,6 +596,15 @@ func _render() -> void:
 	var mode := str(args.get("mode", "plain"))
 	if mode in cv.modes:
 		cv.modes[mode] = true
+	if mode == "game":
+		# как окно игры: основа ≥ окна × zoom, сверху спрятано view_top, фигура у лагеря (--from), туман
+		cv.game_mode = true
+		cv.camp = str(args.get("from", ""))
+		cv.layers.sockets = false
+		cv.game_layout(Vector2(w, h))
+		if cv.camp != "":
+			cv.modes.fog = true
+			cv.sim.visited = [cv.camp]
 	cv.sim.boat = args.has("boat")
 	cv.sim.tide = str(args.get("tide", "normal"))
 	if mode == "tide" and cv.sim.tide == "normal":

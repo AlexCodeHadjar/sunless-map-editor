@@ -36,6 +36,17 @@ static func norm(p: String) -> String:
 	return p.replace("\\", "/").trim_suffix("/")
 
 
+## Лавка игры, с которой берётся ассортимент для новой лавки (той же главы, иначе первая).
+static func game_shop_template(game: String, chapter: String) -> Dictionary:
+	var shops: Variant = JsonX.read_file(game + "/data/shops.json")
+	if not shops is Array or shops.is_empty():
+		return {}
+	for s: Dictionary in shops:
+		if str(s.get("chapter", "")) == chapter:
+			return s
+	return shops[0]
+
+
 static func is_game_dir(dir: String) -> bool:
 	return FileAccess.file_exists(dir + "/project.godot") and DirAccess.dir_exists_absolute(dir + "/data")
 
@@ -180,6 +191,14 @@ static func plan(doc: MapDoc, lib: PackLibrary) -> Dictionary:
 				var sid := str(shops[i].get("id", ""))
 				if doc.shops.has(sid) and JsonX.stringify(shops[i]) != JsonX.stringify(doc.shops[sid]):
 					shops[i] = doc.shops[sid]
+					changed = true
+			# новые лавки (место отмечено лавкой в редакторе) — в конец списка
+			var known := {}
+			for sh: Dictionary in shops:
+				known[str(sh.get("id", ""))] = true
+			for sid2: String in doc.shops:
+				if not known.has(sid2):
+					shops.append(doc.shops[sid2])
 					changed = true
 			if changed:
 				items.append(_text_item(doc.game, "data/shops.json", JsonX.stringify(shops) + "\n", "json"))

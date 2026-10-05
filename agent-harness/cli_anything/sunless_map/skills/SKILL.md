@@ -45,7 +45,7 @@ starts it with a tiny window (real renderer).
 | socket | `list`, `add X Y`, `move I X Y`, `remove I` (0-based; groups renumbered) |
 | — | `check`, `route FROM [TO] [--boat] [--tide flood]`, `step FROM`, `tide [--level flood\|storm]` |
 | — | `export [--dry-run] [--reimport] [--force]`, `batch OPS.json` |
-| preview | `recipes`, `capture [--recipe plain\|graph\|route\|tide\|overview] [--from A --to B] [--width 1600]`, `latest` |
+| preview | `recipes`, `capture [--recipe plain\|graph\|route\|tide\|game\|overview] [--from A --to B] [--width 1600]` (`game` — as the player sees it: 16:9, figure at `--from`, fog), `latest` |
 | session | `status`, `undo`, `redo` |
 | — | `gui` (open the editor window for a human) |
 

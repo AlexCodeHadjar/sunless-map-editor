@@ -37,6 +37,8 @@ var detailed := false
 var preview_state := {}            ## место → облик для предпросмотра
 var pack_pick := {}                ## выбранная в паке текстура {pack, tex}
 var height_alpha := 0.5
+var game_mode := false             ## режим «Игра»: ромбы событий, фигура у лагеря, без служебных меток
+var camp := ""                     ## место фигуры в режиме «Игра»
 
 var base_px := 1000.0              ## ширина основы на экране
 var pan := Vector2.ZERO            ## левый верхний угол основы на экране
@@ -53,6 +55,7 @@ var _mouse := Vector2.ZERO
 var _fitted := false
 var _water_rect: ColorRect
 var _water_mat: ShaderMaterial
+var _fog_layer: FogLayer
 
 
 func _ready() -> void:
@@ -70,6 +73,8 @@ func _ready() -> void:
 	_water_rect.material = _water_mat
 	_water_rect.visible = false
 	add_child(_water_rect)
+	_fog_layer = FogLayer.new()
+	add_child(_fog_layer)
 
 
 func setup(d: MapDoc, s: TexSource, c: TexCache, l: PackLibrary) -> void:
@@ -92,6 +97,11 @@ func setup(d: MapDoc, s: TexSource, c: TexCache, l: PackLibrary) -> void:
 
 func _on_tex_ready(_k: String) -> void:
 	queue_redraw()
+
+
+func _process(_d: float) -> void:
+	if modes.fog:
+		queue_redraw()
 
 
 # --- координаты ----------------------------------------------------------------------------------
@@ -126,11 +136,24 @@ func foot_point(lid: String) -> Vector2:
 
 ## Вписать основу в окно.
 func fit() -> void:
-	if size.x < 10 or doc == null:
+	if size.x < 10 or doc == null or game_mode:
 		return
 	base_px = minf(size.x * 0.96, size.y * 0.96 * aspect())
 	pan = (size - Vector2(base_px, base_px / aspect())) / 2.0
 	_fitted = true
+	queue_redraw()
+
+
+## Раскладка как у игры при старте (SleeperMap._fit + set_pan): основа ≥ окна × zoom, сверху спрятано view_top,
+## лагерь — по середине видимой части по горизонтали (в пределах запаса сдвига).
+func game_layout(view: Vector2) -> void:
+	var a := aspect()
+	var w := maxf(view.x, view.y * a) * float(doc.map.get("zoom", 1.15))
+	base_px = w
+	var px := (view.x - w) / 2.0
+	if camp != "" and doc.places().has(camp):
+		px = view.x / 2.0 - doc.at(camp).x * w
+	pan = Vector2(clampf(px, minf(view.x - w, 0.0), 0.0), -float(doc.map.get("view_top", 0.08)) * (w / a))
 	queue_redraw()
 
 
@@ -174,7 +197,7 @@ func _draw() -> void:
 			_text_at(br.get_center(), "Перетащите сюда основу из пака (вид «Основы»)", 20, UiTheme.DIM)
 	_update_water(br)
 	if layers.height and doc.map.has("height"):
-		var ht := cache.map_tex(src, str(doc.map.height), 2048)
+		var ht := cache.map_tex(src, str(doc.map.height).get_basename(), 2048)
 		if ht != null:
 			draw_texture_rect(ht, br, false, Color(1, 1, 1, height_alpha))
 	var dim: bool = modes.graph
@@ -197,6 +220,8 @@ func _draw() -> void:
 	if layers.foot and not modes.graph and not modes.route:
 		_draw_feet()
 	_draw_rubble()
+	if game_mode:
+		_draw_game_marks()
 	if modes.route:
 		_draw_route()
 	if modes.step:
@@ -240,7 +265,7 @@ func _update_water(br: Rect2) -> void:
 	if not show:
 		_water_rect.visible = false
 		return
-	var ht := cache.full_tex(src, str(doc.map.height)) if src.exists(str(doc.map.height)) else null
+	var ht := cache.full_tex(src, str(doc.map.height).get_basename()) if src.exists(str(doc.map.height).get_basename()) else null
 	var wt := cache.map_tex(src, str(doc.map.get("water", "water_tile.webp")).get_basename(), 512)
 	if ht == null or wt == null:
 		_water_rect.visible = false
@@ -318,6 +343,11 @@ func _draw_paths() -> void:
 		if selp:
 			draw_polyline(pts, Color(UiTheme.ACCENT, 0.5), w * 5.0, true)
 		_draw_ink(pts, ink, w)
+	# появившееся место (предпросмотр на площадке) — тропа к ближайшему постоянному месту, как в игре
+	for lid: String in sim.emerged:
+		var near := sim.nearest_permanent(sim.anchor(lid), lid)
+		if near != "" and doc.places().has(lid):
+			_draw_ink(curve_points(place_center(lid), place_center(near), place_px(lid), place_px(near)), Color(0.75, 0.9, 1.0, 0.85), w)
 
 
 func state_for(lid: String) -> String:
@@ -396,8 +426,9 @@ func _draw_decals() -> void:
 
 func _draw_labels() -> void:
 	var fs := int(clampf(base_px / 110.0, 11.0, 20.0))
+	var kn := sim.known() if modes.fog else {}
 	for lid: String in doc.places():
-		if not sim.present(lid):
+		if not sim.present(lid) or (modes.fog and not kn.has(lid)):
 			continue
 		var p := foot_point(lid) + Vector2(0, fs * 1.4)
 		var col := Color(0.78, 0.9, 1.0) if (modes.tide and sim.flooded(lid)) else Color.WHITE
@@ -407,8 +438,9 @@ func _draw_labels() -> void:
 
 
 func _draw_feet() -> void:
+	var kn := sim.known() if modes.fog else {}
 	for lid: String in doc.places():
-		if not sim.present(lid):
+		if not sim.present(lid) or (modes.fog and not kn.has(lid)):
 			continue
 		var f := foot_point(lid)
 		var s := 7.0
@@ -545,23 +577,43 @@ func _draw_step() -> void:
 			_text_at(c + Vector2(0, r + 14), why, 12, Color(1.0, 0.6, 0.6))
 
 
-func _draw_fog() -> void:
-	var kn := sim.known()
-	var br := base_rect()
-	# туман — дымка поверх основы; открытое — светлые круги (как маска игры, упрощённо)
-	draw_rect(br, Color(0.08, 0.08, 0.1, 0.55))
-	for lid: String in kn:
-		if not doc.places().has(lid):
+## Режим «Игра»: ромбы событий в точках foot у открытых мест и каменная фигура у лагеря.
+func _draw_game_marks() -> void:
+	var kn := sim.known() if modes.fog else {}
+	for lid: String in doc.places():
+		if not sim.present(lid) or (modes.fog and not kn.has(lid)) or lid == camp:
 			continue
-		var c := place_center(lid)
-		var rr := 0.17 * br.size.y
-		for k in 4:
-			draw_circle(c, rr * (1.0 - k * 0.18), Color(0.85, 0.82, 0.75, 0.05))
-		if sim.visited.has(lid):
-			draw_arc(c, place_px(lid) * 0.45, 0, TAU, 48, UiTheme.OK, 3.0, true)
-	for e: Array in sim.links():
-		if kn.has(str(e[0])) and kn.has(str(e[1])):
-			draw_line(place_center(str(e[0])), place_center(str(e[1])), Color(0.85, 0.82, 0.75, 0.12), 0.1 * br.size.y, true)
+		var f := foot_point(lid)
+		var s := clampf(base_px / 120.0, 10.0, 22.0)
+		var pts := PackedVector2Array([f + Vector2(0, -s), f + Vector2(s, 0), f + Vector2(0, s), f + Vector2(-s, 0)])
+		draw_colored_polygon(pts, Color(0.1, 0.09, 0.12, 0.92))
+		pts.append(pts[0])
+		draw_polyline(pts, Color(0.95, 0.78, 0.42), 2.5, true)
+		draw_circle(f, s * 0.28, Color(0.95, 0.78, 0.42))
+	if camp != "" and doc.places().has(camp):
+		var c := place_center(camp) + Vector2(0, place_px(camp) * 0.05)
+		var h := clampf(base_px / 40.0, 26.0, 60.0)
+		draw_circle(c + Vector2(0, h * 0.5), h * 0.42, Color(0, 0, 0, 0.35))
+		draw_rect(Rect2(c + Vector2(-h * 0.28, -h * 0.1), Vector2(h * 0.56, h * 0.6)), Color(0.62, 0.62, 0.6))
+		draw_circle(c + Vector2(0, -h * 0.32), h * 0.24, Color(0.7, 0.7, 0.68))
+		draw_arc(c + Vector2(0, h * 0.2), h * 0.62, 0, TAU, 48, Color(1.0, 0.8, 0.42, 0.7), 3.0, true)
+		_text_at(c + Vector2(-place_px(camp) * 0.32, place_px(camp) * 0.2), "лагерь", 14, Color(1.0, 0.8, 0.5))
+
+
+## Туман неизвестного — та же маска и шейдер, что в игре (FogLayer); посещённые места — зелёным кольцом.
+func _draw_fog() -> void:
+	var kn: Array = sim.known().keys().filter(func(l: String) -> bool: return doc.places().has(l))
+	var centers := {}
+	for lid: String in kn:
+		centers[lid] = sim.anchor(lid)
+	var br := base_rect()
+	var ft := cache.map_tex(src, str(doc.map.get("fog", "fog_tile.webp")).get_basename(), 512)
+	_fog_layer.update(br, aspect(), ft, kn, centers, sim.links())
+	draw_texture_rect(_fog_layer.texture(), br, false)
+	if not game_mode:
+		for lid2: String in sim.visited:
+			if doc.places().has(lid2):
+				draw_arc(place_center(lid2), place_px(lid2) * 0.45, 0, TAU, 48, UiTheme.OK, 3.0, true)
 
 
 func _draw_selection() -> void:

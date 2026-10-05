@@ -23,7 +23,7 @@ static func run(doc: MapDoc, src: TexSource) -> Array:
 		if not src.exists(str(m.get("base", "base.webp")).get_basename()):
 			row.call("error", "base", "Нет основы карты — перетащите основу из пака на холст")
 		if m.has("height"):
-			if not src.exists(str(m.height)):
+			if not src.exists(str(m.height).get_basename()):
 				row.call("error", "height", "Нет карты высот — без неё вода не нарисуется")
 			if not src.exists(str(m.get("water", "water_tile.webp")).get_basename()):
 				row.call("error", "water", "Нет плитки воды")
@@ -98,6 +98,10 @@ static func run(doc: MapDoc, src: TexSource) -> Array:
 
 	# --- угрозы, зоны, подвижные угрозы: ссылки на места
 	_refs(doc, row, nm)
+
+	# --- высота места и карта высот (ФТ-25)
+	if src != null and m.has("height"):
+		_height_vs_map(doc, src, row, nm)
 
 	# --- подсказки редактора
 	# появляющиеся места стоят на площадках — их точка на карте не важна
@@ -291,3 +295,26 @@ static func _refs(doc: MapDoc, row: Callable, nm: Callable) -> void:
 		for key2: String in ["swarm", "fire"]:
 			for lid3: String in Dictionary(t.get(key2, {})):
 				need.call(lid3, "Угроза (%s)" % key2)
+
+
+## Высота места в locations.json и вода на картинке совпадают: низина ниже прилива, высота — выше.
+static func _height_vs_map(doc: MapDoc, src: TexSource, row: Callable, nm: Callable) -> void:
+	var img := src.image(str(doc.map.height).get_basename())
+	if img == null:
+		return
+	if img.is_compressed():
+		img.decompress()
+	var flood := float(doc.map.get("levels", {}).get("flood", 115))
+	for lid: String in doc.places():
+		if doc.is_emerging(lid) or doc.is_shop(lid):
+			continue
+		var at := doc.at(lid)
+		var px := Vector2i(clampi(int(at.x * img.get_width()), 0, img.get_width() - 1), clampi(int(at.y * img.get_height()), 0, img.get_height() - 1))
+		var h := img.get_pixelv(px).r * 255.0
+		match doc.height_of(lid):
+			"low":
+				if h > flood + 3.0:
+					row.call("warn", "height_map", "%s — низина, но на карте высот стоит выше прилива: вода её не зальёт" % nm.call(lid), {"places": [lid]})
+			"high":
+				if h < flood:
+					row.call("warn", "height_map", "%s — высота, но на карте высот она под водой в прилив" % nm.call(lid), {"places": [lid]})

@@ -22,6 +22,7 @@ var _checks_sum: Label
 var _extra: TextEdit
 var _rows: Array = []
 var _rebuild_queued := false
+var _icon_buttons: Array = []   ## [кнопка, имя текстуры] — миниатюры приходят из фона позже
 
 
 func _ready() -> void:
@@ -45,7 +46,8 @@ func _ready() -> void:
 	_checks_list.tooltip_text = "Щёлкните строку — виноватое место или тропа выделится на карте"
 	_checks_box.add_child(_checks_list)
 	var ex := VBoxContainer.new()
-	ex.name = "Дополнительно"
+	ex.name = "Ещё"
+	ex.tooltip_text = "Дополнительные поля карты"
 	add_child(ex)
 	ex.add_child(UiTheme.label("Поля карты, которые редактор пока не показывает в своих панелях. Они сохраняются в игру как были. Менять — только если знаете, что делаете.", 13, UiTheme.DIM, true))
 	_extra = TextEdit.new()
@@ -74,11 +76,20 @@ func setup(d: MapDoc, cv: MapCanvas, c: TexCache, l: PackLibrary) -> void:
 	lib = l
 	if not doc.changed.is_connected(_on_doc_changed):
 		doc.changed.connect(_on_doc_changed)
+	if not cache.loaded.is_connected(_on_icon_loaded):
+		cache.loaded.connect(_on_icon_loaded)
 	rebuild()
 
 
 func _on_doc_changed(_w: String) -> void:
 	queue_rebuild()
+
+
+func _on_icon_loaded(_k: String) -> void:
+	for it: Array in _icon_buttons:
+		var b: Button = it[0]
+		if is_instance_valid(b) and b.icon == null:
+			b.icon = cache.map_tex(canvas.src, it[1], 128)
 
 
 func queue_rebuild() -> void:
@@ -92,6 +103,7 @@ func rebuild() -> void:
 	_rebuild_queued = false
 	if doc == null:
 		return
+	_icon_buttons.clear()
 	_build_props()
 	_build_map()
 	_build_layers()
@@ -219,6 +231,7 @@ func _place_props(lid: String) -> void:
 		b.toggle_mode = true
 		b.button_pressed = st == cur
 		b.icon = cache.map_tex(canvas.src, "%s_%s" % [lid, st], 128)
+		_icon_buttons.append([b, "%s_%s" % [lid, st]])
 		b.expand_icon = true
 		b.custom_minimum_size = Vector2(92, 104)
 		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -256,6 +269,8 @@ func _place_props(lid: String) -> void:
 		_props.add_child(UiTheme.label("Через лавку можно пройти насквозь, но встать лагерем нельзя. Для проверок лавка считается высотой.", 13, UiTheme.DIM, true))
 	else:
 		_location_props(lid)
+	_phase_looks(lid)
+	_place_extras(lid)
 	# тропы
 	_sep(_props)
 	var nb := doc.path_places(lid)
@@ -431,30 +446,6 @@ func _path_props(pair: Array) -> void:
 	_props.add_child(del)
 
 
-## Особые тропы (ФТ-19): водная, хрупкий проход, опасный спуск. Расширяется в фазе v2.
-func _special_path_props(a: String, b: String) -> void:
-	pass
-
-
-func _socket_props(i: int) -> void:
-	_props.add_child(UiTheme.header("Площадка %d" % (i + 1)))
-	_props.add_child(UiTheme.label("Сюда игра ставит места, которые появляются и исчезают (места отлива, котловины после бури, места событий). Площадку можно тащить.", 13, UiTheme.DIM, true))
-	_sep(_props)
-	var del := UiTheme.button("Убрать площадку", "Номера остальных площадок пересчитаются, группы обновятся", func() -> void:
-		doc.edit("Убрать площадку", func() -> void: doc.remove_socket(i))
-		canvas.select_thing({}))
-	del.add_theme_color_override("font_color", UiTheme.ERROR)
-	_props.add_child(del)
-
-
-func _decal_props(d: Variant) -> void:
-	_props.add_child(UiTheme.header("Метка"))
-	if d is Dictionary:
-		_props.add_child(UiTheme.label(str(d.get("decal", "")), 14))
-		if d.has("place"):
-			_props.add_child(UiTheme.label("у места %s" % Words.q(doc.display_name(str(d.place))), 13, UiTheme.DIM))
-
-
 func _rubble_props(rid: String) -> void:
 	_props.add_child(UiTheme.header("Завал"))
 	var r: Dictionary = doc.map.get("rubble", {}).get(rid, {})
@@ -508,6 +499,7 @@ func _build_map() -> void:
 		float(doc.map.get("zoom", 1.15)), func(v: float) -> String: return "без запаса" if v < 1.05 else ("небольшой" if v < 1.25 else "большой"),
 		func(v: float) -> void: doc.map["zoom"] = snappedf(v, 0.01), "Запас сдвига")
 	_water_props()
+	_groups_props()
 	_sep(_map)
 	_map.add_child(UiTheme.label("Глава игры для новых мест", 14))
 	var ch := LineEdit.new()
@@ -517,11 +509,6 @@ func _build_map() -> void:
 	_map.add_child(ch)
 	if canvas.detailed:
 		_map.add_child(UiTheme.label("Регион (папка картинок и файл карты): %s" % doc.region, 13, UiTheme.DIM, true))
-
-
-## Вода и прилив (ФТ-23, 24): уровни — словами. Расширяется в фазе v2.
-func _water_props() -> void:
-	pass
 
 
 # --- слои ----------------------------------------------------------------------------------------
@@ -603,3 +590,430 @@ func _apply_extra() -> void:
 				continue
 			doc.map[k2] = v[k2])
 	message.emit("Дополнительные поля записаны в карту.")
+
+
+## Особые тропы (ФТ-19): водная (только на лодке), опасный спуск, сети троп бури.
+func _special_path_props(a: String, b: String) -> void:
+	_sep(_props)
+	_props.add_child(UiTheme.label("Особая тропа", 14, UiTheme.ACCENT))
+	var is_water: bool = Array(doc.map.get("water_paths", [])).any(func(e: Array) -> bool: return MapDoc.same_pair(e, a, b))
+	var wc := CheckBox.new()
+	wc.text = "По Чёрной воде — только на лодке"
+	wc.button_pressed = is_water
+	wc.tooltip_text = "Водная тропа рисуется голубым; пройти можно только с лодкой и в «водные» фазы недели"
+	wc.toggled.connect(func(v: bool) -> void:
+		doc.edit("Водная тропа", func() -> void:
+			var wp: Array = doc.map.get("water_paths", [])
+			wp = wp.filter(func(e: Array) -> bool: return not MapDoc.same_pair(e, a, b))
+			if v:
+				wp.append([a, b])
+				if doc.has_path(a, b):
+					doc.toggle_path(a, b)
+				if not doc.map.has("water_phases"):
+					doc.map["water_phases"] = ["night", "blood_moon"]
+			elif not doc.has_path(a, b):
+				doc.paths().append([a, b])
+			if wp.is_empty():
+				doc.map.erase("water_paths")
+			else:
+				doc.map["water_paths"] = wp))
+	_props.add_child(wc)
+	var risky: Array = doc.map.get("risky", [])
+	var ri := -1
+	for i in risky.size():
+		if MapDoc.same_pair(Array(risky[i].get("pair", [])), a, b):
+			ri = i
+	var rc := CheckBox.new()
+	rc.text = "Опасный спуск — при переходе проверка героя"
+	rc.button_pressed = ri >= 0
+	rc.tooltip_text = "Лучший герой проходит проверку силы; провал — на грань смерти"
+	rc.toggled.connect(func(v: bool) -> void:
+		doc.edit("Опасный спуск", func() -> void:
+			var rk: Array = doc.map.get("risky", [])
+			rk = rk.filter(func(e: Dictionary) -> bool: return not MapDoc.same_pair(Array(e.get("pair", [])), a, b))
+			if v:
+				rk.append({"pair": [a, b], "name": "Спуск: %s — %s" % [doc.display_name(a), doc.display_name(b)], "req": {"power": 7}, "tags": ["climb"]})
+			if rk.is_empty():
+				doc.map.erase("risky")
+			else:
+				doc.map["risky"] = rk))
+	_props.add_child(rc)
+	var sets: Array = doc.map.get("path_sets", {}).get("sets", [])
+	if not sets.is_empty():
+		_props.add_child(UiTheme.label("Сети троп бури: в бурю открывается следующая сеть", 13, UiTheme.DIM, true))
+		for i2 in sets.size():
+			var sc := CheckBox.new()
+			sc.text = "Есть в сети бури %d" % (i2 + 1)
+			sc.button_pressed = Array(sets[i2]).any(func(e: Array) -> bool: return MapDoc.same_pair(e, a, b))
+			var idx := i2
+			sc.toggled.connect(func(v: bool) -> void:
+				doc.edit("Сеть бури", func() -> void:
+					var st: Array = doc.map.path_sets.sets[idx]
+					st = st.filter(func(e: Array) -> bool: return not MapDoc.same_pair(e, a, b))
+					if v:
+						st.append([a, b])
+					doc.map.path_sets.sets[idx] = st))
+			_props.add_child(sc)
+	_props.add_child(UiTheme.button("＋ Сеть троп бури", "Добавить сеть троп, которая включается в бурю (как в Главе 4)", func() -> void:
+		doc.edit("Новая сеть бури", func() -> void:
+			if not doc.map.has("path_sets"):
+				doc.map["path_sets"] = {"storm_phase": "ash_storm", "sets": []}
+			doc.map.path_sets.sets.append([[a, b]]))))
+
+
+func _socket_props(i: int) -> void:
+	_props.add_child(UiTheme.header("Площадка %d" % (i + 1)))
+	_props.add_child(UiTheme.label("Сюда игра ставит места, которые появляются и исчезают (места отлива, котловины после бури, места событий). Площадку можно тащить.", 13, UiTheme.DIM, true))
+	_sep(_props)
+	_props.add_child(UiTheme.label("В каких группах эта площадка", 14))
+	var ebb := CheckBox.new()
+	ebb.text = "Площадки отлива (общие)"
+	ebb.button_pressed = Array(doc.map.get("ebb_sockets", [])).has(i)
+	ebb.toggled.connect(func(v: bool) -> void:
+		doc.edit("Площадки отлива", func() -> void:
+			var a: Array = doc.map.get("ebb_sockets", [])
+			a.erase(i)
+			if v:
+				a.append(i)
+				a.sort()
+			doc.map["ebb_sockets"] = a))
+	_props.add_child(ebb)
+	var groups: Dictionary = doc.map.get("emerge_groups", {})
+	for g: String in groups:
+		var c := CheckBox.new()
+		c.text = "Группа «%s»" % g
+		c.button_pressed = Array(groups[g].get("sockets", [])).has(i)
+		c.toggled.connect(func(v: bool) -> void:
+			doc.edit("Группа площадок", func() -> void:
+				var a2: Array = doc.map.emerge_groups[g].get("sockets", [])
+				a2.erase(i)
+				if v:
+					a2.append(i)
+					a2.sort()
+				doc.map.emerge_groups[g]["sockets"] = a2))
+		_props.add_child(c)
+	# предпросмотр (ФТ-22): поставить появляющееся место и увидеть, к какому месту игра проведёт тропу
+	var em: Array = doc.locations.keys().filter(func(l: String) -> bool: return doc.is_emerging(l) and doc.places().has(l))
+	if not em.is_empty():
+		_sep(_props)
+		_props.add_child(UiTheme.label("Предпросмотр: поставить сюда появляющееся место", 14))
+		var ob := OptionButton.new()
+		ob.add_item("— никого —")
+		ob.set_item_metadata(0, "")
+		var cur := 0
+		for l2: String in em:
+			ob.add_item(doc.display_name(l2))
+			ob.set_item_metadata(ob.item_count - 1, l2)
+			if int(canvas.sim.emerged.get(l2, -1)) == i:
+				cur = ob.item_count - 1
+		ob.select(cur)
+		ob.item_selected.connect(func(k: int) -> void:
+			for l3: String in canvas.sim.emerged.keys():
+				if int(canvas.sim.emerged[l3]) == i:
+					canvas.sim.emerged.erase(l3)
+			var pick := str(ob.get_item_metadata(k))
+			if pick != "":
+				canvas.sim.emerged[pick] = i
+				var near := canvas.sim.nearest_permanent(canvas.sim.anchor(pick), pick)
+				message.emit("«%s» на площадке %d — игра соединит его тропой с «%s» (ближайшее постоянное место)." % [doc.display_name(pick), i + 1, doc.display_name(near)])
+			canvas.queue_redraw())
+		_props.add_child(ob)
+	_sep(_props)
+	var del := UiTheme.button("Убрать площадку", "Номера остальных площадок пересчитаются, группы обновятся", func() -> void:
+		doc.edit("Убрать площадку", func() -> void: doc.remove_socket(i))
+		canvas.select_thing({}))
+	del.add_theme_color_override("font_color", UiTheme.ERROR)
+	_props.add_child(del)
+
+
+const PHASE_LIST := ["day", "dawn", "dusk", "night", "storm", "blood_moon", "ash_storm"]
+
+
+## Метка (ФТ-27): условия — фазы недели, с какого дня, только если место открыто, вариант места.
+func _decal_props(d: Variant) -> void:
+	_props.add_child(UiTheme.header("Метка"))
+	if not d is Dictionary:
+		return
+	var dd: Dictionary = d
+	var row := HBoxContainer.new()
+	var t := TextureRect.new()
+	t.custom_minimum_size = Vector2(72, 72)
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	t.texture = cache.map_tex(canvas.src, str(dd.get("decal", "")), 128)
+	row.add_child(t)
+	var where := "у места %s" % Words.q(doc.display_name(str(dd.place))) if dd.has("place") else "на тропе"
+	row.add_child(UiTheme.label("%s\n%s" % [str(dd.get("decal", "")).trim_prefix("decal_").replace("_", " "), where], 14, UiTheme.TEXT, true))
+	_props.add_child(row)
+	_sep(_props)
+	_props.add_child(UiTheme.label("Когда видна (ничего не отмечено — всегда)", 14))
+	var flow := HFlowContainer.new()
+	for ph: String in PHASE_LIST:
+		var c := CheckBox.new()
+		c.text = Words.phase(ph)
+		c.button_pressed = Array(dd.get("phase", [])).has(ph)
+		c.toggled.connect(func(v: bool) -> void:
+			doc.edit("Условие метки", func() -> void:
+				var a: Array = dd.get("phase", [])
+				a.erase(ph)
+				if v:
+					a.append(ph)
+				if a.is_empty():
+					dd.erase("phase")
+				else:
+					dd["phase"] = a))
+		flow.add_child(c)
+	_props.add_child(flow)
+	var dr := HBoxContainer.new()
+	dr.add_child(UiTheme.label("С какого дня главы", 14))
+	var sp := SpinBox.new()
+	sp.min_value = 0
+	sp.max_value = 60
+	sp.value = int(dd.get("from_day", 0))
+	sp.tooltip_text = "0 — с первого дня"
+	sp.value_changed.connect(func(v: float) -> void:
+		doc.edit("Условие метки", func() -> void:
+			if int(v) <= 0:
+				dd.erase("from_day")
+			else:
+				dd["from_day"] = int(v)))
+	dr.add_child(sp)
+	_props.add_child(dr)
+	if dd.has("place"):
+		var oc := CheckBox.new()
+		oc.text = "Только когда место уже открыто игроку"
+		oc.button_pressed = bool(dd.get("open", false))
+		oc.toggled.connect(func(v: bool) -> void:
+			doc.edit("Условие метки", func() -> void:
+				if v:
+					dd["open"] = true
+				else:
+					dd.erase("open")))
+		_props.add_child(oc)
+	_sep(_props)
+	var del := UiTheme.button("Убрать метку", "", func() -> void:
+		doc.edit("Убрать метку", func() -> void:
+			for key: String in ["place_decals", "path_decals"]:
+				if doc.map.has(key):
+					doc.map[key].erase(dd))
+		canvas.select_thing({}))
+	del.add_theme_color_override("font_color", UiTheme.ERROR)
+	_props.add_child(del)
+
+
+## Облики по фазе недели и событиям (ФТ-28): какой облик у места в эту фазу.
+func _phase_looks(lid: String) -> void:
+	var sts := doc.states(lid)
+	if sts.size() < 2:
+		return
+	_sep(_props)
+	_props.add_child(UiTheme.label("Облик по фазе недели", 14))
+	_props.add_child(UiTheme.label("Например: Древо светится ночью. Посмотреть — переключатель «Фаза» сверху.", 12, UiTheme.DIM, true))
+	var ps: Dictionary = doc.map.get("phase_states", {}).get(lid, {})
+	for ph: String in PHASE_LIST:
+		var row := HBoxContainer.new()
+		var l := UiTheme.label(Words.phase(ph), 13)
+		l.custom_minimum_size = Vector2(120, 0)
+		row.add_child(l)
+		var ob := OptionButton.new()
+		ob.add_item("как обычно")
+		ob.set_item_metadata(0, "")
+		var cur := 0
+		for st: String in sts:
+			ob.add_item(Words.state(st))
+			ob.set_item_metadata(ob.item_count - 1, st)
+			if str(ps.get(ph, "")) == st:
+				cur = ob.item_count - 1
+		ob.select(cur)
+		ob.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		ob.item_selected.connect(func(k: int) -> void:
+			doc.edit("Облик по фазе", func() -> void:
+				var all: Dictionary = doc.map.get("phase_states", {})
+				var mine: Dictionary = all.get(lid, {})
+				var st2 := str(ob.get_item_metadata(k))
+				if st2 == "":
+					mine.erase(ph)
+				else:
+					mine[ph] = st2
+				if mine.is_empty():
+					all.erase(lid)
+				else:
+					all[lid] = mine
+				if all.is_empty():
+					doc.map.erase("phase_states")
+				else:
+					doc.map["phase_states"] = all))
+		row.add_child(ob)
+		_props.add_child(row)
+	var evs: Array = Array(doc.map.get("event_states", [])).filter(func(e: Dictionary) -> bool: return str(e.get("place", "")) == lid)
+	for es: Dictionary in evs:
+		var parts: Array = []
+		if es.has("phase"):
+			parts.append(", ".join(Array(es.phase).map(func(x: String) -> String: return Words.phase(x))))
+		if bool(es.get("camp", false)):
+			parts.append("когда здесь лагерь")
+		if es.has("from_day"):
+			parts.append("с дня %d" % int(es.from_day))
+		_props.add_child(UiTheme.label("• %s — %s" % [Words.state(str(es.get("state", ""))), "; ".join(parts) if not parts.is_empty() else "по событию"], 12, UiTheme.DIM, true))
+
+
+## Хрупкий проход и лавка (ФТ-16, 19).
+func _place_extras(lid: String) -> void:
+	_sep(_props)
+	var fr := CheckBox.new()
+	fr.text = "Хрупкий проход (мост) — рушится после нескольких переходов"
+	fr.button_pressed = doc.map.get("fragile", {}).has(lid)
+	fr.toggled.connect(func(v: bool) -> void:
+		doc.edit("Хрупкий проход", func() -> void:
+			var f: Dictionary = doc.map.get("fragile", {})
+			if v:
+				f[lid] = {"crossings": 4, "storm": false, "warn": "cracked"}
+			else:
+				f.erase(lid)
+			if f.is_empty():
+				doc.map.erase("fragile")
+			else:
+				doc.map["fragile"] = f))
+	_props.add_child(fr)
+	if doc.map.get("fragile", {}).has(lid):
+		var fd: Dictionary = doc.map.fragile[lid]
+		_slider(_props, "Сколько переходов выдержит", "После стольких переходов проход трескается, затем рушится", 1, 10, 1, float(fd.get("crossings", 4)),
+			func(v: float) -> String: return Words.steps(int(v)).replace("шаг", "переход"), func(v: float) -> void: doc.map.fragile[lid]["crossings"] = int(v), "Хрупкий проход")
+	if doc.game != "":
+		var sc := CheckBox.new()
+		sc.text = "Это лавка (пройти можно, встать лагерем — нет)"
+		sc.button_pressed = doc.is_shop(lid)
+		sc.toggled.connect(func(v: bool) -> void: _make_shop(lid, v))
+		_props.add_child(sc)
+
+
+func _make_shop(lid: String, on: bool) -> void:
+	if on:
+		var tmpl := GameIO.game_shop_template(doc.game, doc.chapter)
+		if tmpl.is_empty():
+			message.emit("В игре нет ни одной лавки, с которой можно взять ассортимент.")
+			queue_rebuild()
+			return
+		doc.edit("Лавка", func() -> void:
+			var loc: Dictionary = doc.locations.get(lid, {})
+			var sh := {"id": lid, "chapter": doc.chapter if doc.chapter != "" else str(loc.get("chapter", doc.region)),
+				"name": doc.display_name(lid), "text": str(loc.get("text", "")), "pos": doc.place(lid).get("at", [0.5, 0.5])}
+			for k: String in ["slots", "min_characters", "refresh_every", "stock", "services"]:
+				if tmpl.has(k):
+					sh[k] = tmpl[k]
+			doc.shops[lid] = sh
+			doc.locations.erase(lid))
+		message.emit("«%s» теперь лавка. Ассортимент взят из лавки «%s» — поменять можно в редакторе контента игры." % [doc.display_name(lid), tmpl.get("name", "")])
+	else:
+		doc.edit("Не лавка", func() -> void:
+			var sh2: Dictionary = doc.shops.get(lid, {})
+			doc.shops.erase(lid)
+			doc.locations[lid] = doc.new_location(lid, str(sh2.get("name", lid)), doc.at(lid)))
+
+
+## Вода и прилив (ФТ-23, 24): уровни — словами, числа только в «Подробно».
+func _water_props() -> void:
+	_sep(_map)
+	var has := doc.map.has("height")
+	var wc := CheckBox.new()
+	wc.text = "На карте есть вода и прилив"
+	wc.button_pressed = has
+	wc.tooltip_text = "Вода рисуется по карте высот. Перетащите карту высот из пака на холст — вода включится сама."
+	wc.toggled.connect(func(v: bool) -> void:
+		doc.edit("Вода", func() -> void:
+			if v:
+				doc.map["height"] = "height.png"
+				doc.map["water"] = doc.map.get("water", "water_tile.webp")
+				doc.map["levels"] = doc.map.get("levels", {"normal": 55, "warn": 68, "flood": 115, "storm": 140})
+			else:
+				for k: String in ["height", "water", "levels"]:
+					doc.map.erase(k)))
+	_map.add_child(wc)
+	if not has:
+		return
+	var lv: Dictionary = doc.map.get("levels", {})
+	var names := {"normal": "Обычная кромка воды", "warn": "Вода подступает", "flood": "Прилив", "storm": "Штормовой прилив"}
+	var word := func(v: float) -> String:
+		if v < 50:
+			return "низко"
+		if v < 90:
+			return "у берега"
+		if v < 130:
+			return "заливает низины"
+		return "заливает и средние"
+	for k2: String in names:
+		_slider(_map, names[k2], "Уровень воды по карте высот (всё ниже — под водой). Включите режим «Прилив», чтобы увидеть.", 0, 255, 1,
+			float(lv.get(k2, 55)), word, func(v: float) -> void:
+				var l2: Dictionary = doc.map.get("levels", {})
+				l2[k2] = int(v)
+				doc.map["levels"] = l2, "Уровень воды")
+
+
+## Группы появляющихся мест (ФТ-21): когда поднимаются, сколько, когда уходят.
+func _groups_props() -> void:
+	_sep(_map)
+	_map.add_child(UiTheme.label("Группы появляющихся мест", 14, UiTheme.ACCENT))
+	_map.add_child(UiTheme.label("Какие площадки в группе — отмечается у площадки (щёлкните её на холсте).", 12, UiTheme.DIM, true))
+	var groups: Dictionary = doc.map.get("emerge_groups", {})
+	for g: String in groups:
+		var grp: Dictionary = groups[g]
+		var box := VBoxContainer.new()
+		box.add_child(UiTheme.label("«%s» — площадок: %d" % [g, Array(grp.get("sockets", [])).size()], 14))
+		var row := HBoxContainer.new()
+		row.add_child(UiTheme.label("Поднимаются:", 13))
+		var ph := OptionButton.new()
+		for p: String in PHASE_LIST:
+			ph.add_item(Words.phase(p))
+			ph.set_item_metadata(ph.item_count - 1, p)
+			if str(grp.get("phase", "")) == p:
+				ph.select(ph.item_count - 1)
+		ph.item_selected.connect(func(k: int) -> void: doc.edit("Группа", func() -> void: doc.map.emerge_groups[g]["phase"] = str(ph.get_item_metadata(k))))
+		row.add_child(ph)
+		row.add_child(UiTheme.label("уходят после:", 13))
+		var sk := OptionButton.new()
+		for p2: String in PHASE_LIST:
+			sk.add_item(Words.phase(p2))
+			sk.set_item_metadata(sk.item_count - 1, p2)
+			if str(grp.get("sink_after", "")) == p2:
+				sk.select(sk.item_count - 1)
+		sk.item_selected.connect(func(k: int) -> void: doc.edit("Группа", func() -> void: doc.map.emerge_groups[g]["sink_after"] = str(sk.get_item_metadata(k))))
+		row.add_child(sk)
+		box.add_child(row)
+		var row2 := HBoxContainer.new()
+		row2.add_child(UiTheme.label("сколько мест:", 13))
+		var cnt: Array = grp.get("count", [1, 1])
+		for j in 2:
+			var s := SpinBox.new()
+			s.min_value = 0
+			s.max_value = 6
+			s.value = int(cnt[j]) if cnt.size() > j else 1
+			s.tooltip_text = "от" if j == 0 else "до"
+			var jj := j
+			s.value_changed.connect(func(v: float) -> void:
+				doc.edit("Группа", func() -> void:
+					var c2: Array = doc.map.emerge_groups[g].get("count", [1, 1]).duplicate()
+					c2[jj] = int(v)
+					doc.map.emerge_groups[g]["count"] = c2))
+			row2.add_child(s)
+		row2.add_child(UiTheme.label("день фазы:", 13))
+		var di := SpinBox.new()
+		di.min_value = 1
+		di.max_value = 7
+		di.value = int(grp.get("day_in", 1))
+		di.value_changed.connect(func(v: float) -> void: doc.edit("Группа", func() -> void: doc.map.emerge_groups[g]["day_in"] = int(v)))
+		row2.add_child(di)
+		box.add_child(row2)
+		box.add_child(UiTheme.button("Убрать группу «%s»" % g, "", func() -> void: doc.edit("Убрать группу", func() -> void: doc.map.emerge_groups.erase(g))))
+		_map.add_child(box)
+	var nr := HBoxContainer.new()
+	var ne := LineEdit.new()
+	ne.placeholder_text = "имя новой группы (латиницей)"
+	ne.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	nr.add_child(ne)
+	nr.add_child(UiTheme.button("＋ Группа", "", func() -> void:
+		var gid := TexPack.slug(ne.text if ne.text != "" else "group")
+		doc.edit("Новая группа", func() -> void:
+			if not doc.map.has("emerge_groups"):
+				doc.map["emerge_groups"] = {}
+			doc.map.emerge_groups[gid] = {"sockets": [], "phase": "dawn", "day_in": 1, "count": [1, 1], "sink_after": "storm"})))
+	_map.add_child(nr)

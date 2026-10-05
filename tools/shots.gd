@@ -50,6 +50,8 @@ func _run() -> void:
 			await _main_flow()
 		"new":
 			await _new_flow()
+		"v2":
+			await _v2_flow()
 	get_tree().quit()
 
 
@@ -119,3 +121,54 @@ func _new_flow() -> void:
 	await settle(30.0)
 	await wait(1.0)
 	await shot("15_export_dialog")
+
+
+## v2: прилив, туман и шаг фигуры, режим «Игра», площадка с появляющимся местом, метка, Глава 4.
+func _v2_flow() -> void:
+	var g: String = main.game_dir()
+	main.open_game_region(g, "forgotten_shore")
+	await settle()
+	main.mode_buttons.tide.button_pressed = true
+	main.tide_pick.select(2)
+	main.tide_pick.item_selected.emit(2)
+	await settle()
+	await shot("20_tide_flood")
+	main.mode_buttons.tide.button_pressed = false
+	main.mode_buttons.step.button_pressed = true
+	main.mode_buttons.fog.button_pressed = true
+	main.canvas.sim.visited = ["stone_isle", "low_tide"]
+	main.canvas.step_from = "low_tide"
+	await settle()
+	await shot("21_fog_step")
+	main.mode_buttons.step.button_pressed = false
+	main.mode_buttons.fog.button_pressed = false
+	main.canvas.select_place("stone_isle")
+	main._game_view()
+	await settle()
+	await wait(1.0)
+	await shot("22_game_view")
+	for w in main.get_children():
+		if w is GameView:
+			w.queue_free()
+	await wait(0.3)
+	main.canvas.sim.emerged["strangers_camp"] = 2
+	main.canvas.select_thing({"kind": "socket", "id": 2})
+	main.props.rebuild()
+	await settle()
+	await shot("23_socket_emerge")
+	var dc: Dictionary = main.doc.map.place_decals[0]
+	main.canvas.select_thing({"kind": "decal", "id": dc})
+	main.props.rebuild()
+	await settle()
+	await shot("24_decal")
+	main.open_game_region(g, "ash_path")
+	main.boat_box.button_pressed = true
+	main.phase_pick.select(4)
+	main.phase_pick.item_selected.emit(4)
+	main.canvas.select_place("soul_tree")
+	main.props.rebuild()
+	await settle()
+	await shot("25_ash_path_night")
+	main.props.current_tab = 1
+	await settle()
+	await shot("26_map_tab")
