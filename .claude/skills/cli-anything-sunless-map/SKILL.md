@@ -79,6 +79,8 @@ For many edits use `batch ops.json` (one Godot start, one undo step). Ops:
 
 ## Agent guidance
 
+- Place ids are global in the game's `locations.json`: `place add` picks a free id (e.g. `soul_tree_2` if another
+  region already has `soul_tree`) — use the id it returns, or refer to places by their Russian name.
 - Always `check` before `export`; `export` refuses on errors unless `--force`.
 - Read `preview capture` artifacts (PNG) to judge placement: vignettes should sit on empty spots of the base,
   not overlap (the check warns at >35 % overlap), labels readable.

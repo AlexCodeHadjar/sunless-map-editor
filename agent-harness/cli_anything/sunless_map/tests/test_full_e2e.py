@@ -197,11 +197,14 @@ class TestRealGame:
         assert run(["project", "new", "--region", "tiny_test", "-o", proj])["ok"]
         pid = run(["pack", "add", str(kit)])["id"]
         run(["-p", proj, "map", "texture", "base", pid, "base"])
-        run(["-p", proj, "place", "add", pid, "soul_tree", "0.5", "0.45"])
-        run(["-p", proj, "place", "add", pid, "lake_shore", "0.32", "0.6"])
-        run(["-p", proj, "path", "add", "soul_tree", "lake_shore"])
+        a = run(["-p", proj, "place", "add", pid, "soul_tree", "0.5", "0.45"])["results"][0]["id"]
+        b = run(["-p", proj, "place", "add", pid, "lake_shore", "0.32", "0.6"])["results"][0]["id"]
+        # codes of places are global in the game: the new places must not reuse ash_path's ids
+        assert a != "soul_tree" and b != "lake_shore"
+        run(["-p", proj, "path", "add", "Древо Души", "Берег Чёрной воды"])
+        assert run(["-p", proj, "check"])["errors"] == 0
         out = str(tmp_path / "game.png")
-        res = run(["-p", proj, "game-shot", "--camp", "soul_tree", "-o", out])
+        res = run(["-p", proj, "game-shot", "--camp", a, "-o", out])
         assert res["ok"] and res["temporary"], res
         im = Image.open(out)
         assert im.size == (1920, 1080)

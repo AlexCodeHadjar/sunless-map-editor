@@ -41,6 +41,13 @@ static func run(doc: MapDoc, src: TexSource) -> Array:
 					row.call("error", "no_state_file", "У %s нет картинки облика «%s»" % [nm.call(lid), Words.state(st)], {"places": [lid]})
 		if not sts.is_empty() and not sts.has("dry"):
 			row.call("warn", "no_dry", "У %s нет обычного облика (dry) — игра возьмёт «%s»" % [nm.call(lid), Words.state(str(sts[0]))], {"places": [lid]})
+	# коды мест общие для всех регионов игры: наше место не должно совпасть с местом другого региона
+	if doc.game != "":
+		for lid6: String in doc.locations:
+			var own := str(doc.locations[lid6].get("region", doc.region)) == doc.region
+			var other := GameIO.game_location_region(doc.game, lid6)
+			if own and other != "" and other != doc.region:
+				row.call("error", "id_taken", "Код места «%s» уже занят в игре (%s) — экспорт перезаписал бы чужое место. Переименуйте: «Подробно» → «Код места»." % [lid6, other.trim_prefix("shop:")], {"places": [lid6]})
 	for lid2: String in doc.locations:
 		if str(doc.locations[lid2].get("region", doc.region)) == doc.region and not places.has(lid2):
 			row.call("error", "no_point", "%s есть в списке мест, но не стоит на карте" % nm.call(lid2), {"places": [lid2]})

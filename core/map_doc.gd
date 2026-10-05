@@ -217,12 +217,20 @@ static func r3(x: float) -> float:
 ## Свободный id места на основе желаемого (coral_maze → coral_maze_2).
 func free_id(want: String) -> String:
 	var base := TexPack.slug(want)
-	if not places().has(base) and not locations.has(base) and not shops.has(base):
+	if not _taken(base):
 		return base
 	var n := 2
-	while places().has("%s_%d" % [base, n]) or locations.has("%s_%d" % [base, n]):
+	while _taken("%s_%d" % [base, n]):
 		n += 1
 	return "%s_%d" % [base, n]
+
+
+## Код занят: в этой карте или местом другого региона игры (коды мест в locations.json общие).
+func _taken(lid: String) -> bool:
+	if places().has(lid) or locations.has(lid) or shops.has(lid):
+		return true
+	var r := GameIO.game_location_region(game, lid)
+	return r != "" and r != region
 
 
 ## Добавить место (без снимка истории — вызывать внутри edit()). states — облики; textures — {облик: [пак, текстура]}.

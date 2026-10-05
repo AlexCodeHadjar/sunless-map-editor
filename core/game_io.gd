@@ -11,6 +11,26 @@ const BACKUPS := "user://backups"
 
 
 static var _names: Dictionary = {}
+static var _regions: Dictionary = {}
+
+
+## Регион, которому в игре принадлежит место (или лавка — её глава) с этим кодом; "" — кода в игре нет.
+## Коды мест общие для всех регионов: новое место не должно занять чужой код.
+static func game_location_region(game: String, lid: String) -> String:
+	if game == "":
+		return ""
+	if not _regions.has(game):
+		var m := {}
+		var locs: Variant = JsonX.read_file(game + "/data/locations.json")
+		if locs is Array:
+			for l: Dictionary in locs:
+				m[str(l.get("id", ""))] = str(l.get("region", ""))
+		var shops: Variant = JsonX.read_file(game + "/data/shops.json")
+		if shops is Array:
+			for s: Dictionary in shops:
+				m[str(s.get("id", ""))] = "shop:" + str(s.get("chapter", ""))
+		_regions[game] = m
+	return str(_regions[game].get(lid, ""))
 
 
 ## Русское название места из locations.json игры (места из комплектов игры называются так же) — "" если нет.

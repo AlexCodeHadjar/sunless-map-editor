@@ -108,3 +108,19 @@ func test_shore_acceptance_spine() -> void:
 	var spine: Array = rows.filter(func(r: Dictionary) -> bool: return str(r.code).begins_with("spine"))
 	check(not spine.is_empty(), "проверка «сухой хребет» сообщает ошибку")
 	check(spine.any(func(r: Dictionary) -> bool: return Array(r.places).has(hg) or Array(r.places).has(sh)), "и подсвечивает место")
+
+
+func test_global_place_ids() -> void:
+	var g := game_dir()
+	if g == "":
+		return
+	var d := MapDoc.new_map("brand_new_region")
+	d.game = g
+	eq(d.free_id("soul_tree"), "soul_tree_2", "код места другого региона игры занят — новый код")
+	eq(d.free_id("unique_place_xyz"), "unique_place_xyz", "свободный код")
+	d.add_place("soul_tree", Vector2(0.5, 0.5), 0.1, ["dry"])
+	var rows := MapChecks.run(d, null)
+	check(rows.any(func(r: Dictionary) -> bool: return r.code == "id_taken"), "экспорт с чужим кодом запрещён")
+	var shore := MapDoc.new_map("forgotten_shore")
+	shore.game = g
+	eq(shore.free_id("stone_isle"), "stone_isle", "код своего региона (место убрали и ставят снова) — можно")
