@@ -12,4 +12,4 @@ if not defined GODOT (
   exit /b 1
 )
 :run
-start "" "%GODOT%" --path "%HERE%." %*
+start "" "%GODOT%" --path "%HERE%." -- %*

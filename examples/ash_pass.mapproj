@@ -1,23 +1,23 @@
 {
  "format": 1,
- "game": "../../SunLess",
+ "game": "C:/Users/alast/OneDrive/Рабочий стол/Yukiro/SunLess",
  "region": "ash_pass",
  "chapter": "ash_pass",
  "packs": [
   {
    "id": "sunless_chapter4_map_kit",
    "version": 1,
-   "path": "../../SunLess/docs/assets/kits/sunless-chapter4-map-kit"
+   "path": "C:/Users/alast/OneDrive/Рабочий стол/Yukiro/SunLess/docs/assets/kits/sunless-chapter4-map-kit"
   },
   {
    "id": "game_forgotten_shore",
    "version": 1,
-   "path": "../../SunLess/art/map/forgotten_shore"
+   "path": "C:/Users/alast/OneDrive/Рабочий стол/Yukiro/SunLess/art/map/forgotten_shore"
   },
   {
    "id": "sunless_map_events_kit",
    "version": 1,
-   "path": "../../SunLess/docs/assets/kits/sunless-map-events-kit"
+   "path": "C:/Users/alast/OneDrive/Рабочий стол/Yukiro/SunLess/docs/assets/kits/sunless-map-events-kit"
   }
  ],
  "textures": {
@@ -184,6 +184,166 @@
   "decal_beacon_fire": {
    "pack": "sunless_chapter4_map_kit",
    "tex": "decal_beacon_fire"
+  },
+  "centipede_lair_2_dry": {
+   "pack": "game_forgotten_shore",
+   "tex": "centipede_lair_dry"
+  },
+  "centipede_lair_2_burned": {
+   "pack": "game_forgotten_shore",
+   "tex": "centipede_lair_burned"
+  },
+  "coral_sinkhole_2_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_2_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_3_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_3_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_4_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_4_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_5_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_5_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_6_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_6_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_7_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_7_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_8_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_8_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_9_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_9_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_10_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_10_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_11_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_11_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_12_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_12_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_13_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_13_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_14_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_14_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_15_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_15_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_16_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_16_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_17_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_17_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_18_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_18_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_19_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_19_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
+  },
+  "coral_sinkhole_20_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_flooded"
+  },
+  "coral_sinkhole_20_open": {
+   "pack": "sunless_map_events_kit",
+   "tex": "coral_sinkhole_open"
   }
  },
  "map": {
@@ -192,13 +352,13 @@
   "base": "base.webp",
   "fog": "fog_tile.webp",
   "view_top": 0.06,
-  "foot": 0.28,
+  "foot": 0.24,
   "zoom": 1.15,
   "places": {
    "pass_camp": {
     "at": [
-     0.86,
-     0.5
+     0.874,
+     0.47200000000000003
     ],
     "size": 0.13,
     "states": [
@@ -234,7 +394,7 @@
    "pass_lord": {
     "at": [
      0.63,
-     0.24
+     0.23900000000000002
     ],
     "size": 0.2,
     "states": [
@@ -278,10 +438,10 @@
    },
    "pass_bones": {
     "at": [
-     0.74,
-     0.66
+     0.731,
+     0.677
     ],
-    "size": 0.18,
+    "size": 0.20500000000000002,
     "states": [
      "dry",
      "storm"
@@ -362,6 +522,226 @@
     "states": [
      "dry",
      "charmed"
+    ]
+   },
+   "centipede_lair_2": {
+    "at": [
+     0.319,
+     0.753
+    ],
+    "size": 0.145,
+    "states": [
+     "dry",
+     "burned"
+    ]
+   },
+   "coral_sinkhole_2": {
+    "at": [
+     0.156,
+     0.23600000000000002
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_3": {
+    "at": [
+     0.18,
+     0.223
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_4": {
+    "at": [
+     0.23,
+     0.189
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_5": {
+    "at": [
+     0.219,
+     0.155
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_6": {
+    "at": [
+     0.081,
+     0.123
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_7": {
+    "at": [
+     0.11,
+     0.445
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_8": {
+    "at": [
+     0.177,
+     0.677
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_9": {
+    "at": [
+     0.12,
+     0.376
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_10": {
+    "at": [
+     0.127,
+     0.356
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_11": {
+    "at": [
+     0.11900000000000001,
+     0.387
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_12": {
+    "at": [
+     0.11800000000000001,
+     0.263
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_13": {
+    "at": [
+     0.134,
+     0.279
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_14": {
+    "at": [
+     0.307,
+     0.158
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_15": {
+    "at": [
+     0.343,
+     0.115
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_16": {
+    "at": [
+     0.45,
+     0.076
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_17": {
+    "at": [
+     0.455,
+     0.178
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_18": {
+    "at": [
+     0.424,
+     0.266
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_19": {
+    "at": [
+     0.342,
+     0.317
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
+    ]
+   },
+   "coral_sinkhole_20": {
+    "at": [
+     0.261,
+     0.354
+    ],
+    "size": 0.145,
+    "states": [
+     "flooded",
+     "open"
     ]
    }
   },
@@ -796,6 +1176,366 @@
     "rest": 14,
     "beds": 1,
     "danger": 0.15,
+    "services": []
+   }
+  },
+  "centipede_lair_2": {
+   "id": "centipede_lair_2",
+   "name": "Логово многоножек",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.328,
+    0.733
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_2": {
+   "id": "coral_sinkhole_2",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.156,
+    0.23600000000000002
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_3": {
+   "id": "coral_sinkhole_3",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.18,
+    0.223
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_4": {
+   "id": "coral_sinkhole_4",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.23,
+    0.189
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_5": {
+   "id": "coral_sinkhole_5",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.219,
+    0.155
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_6": {
+   "id": "coral_sinkhole_6",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.081,
+    0.123
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_7": {
+   "id": "coral_sinkhole_7",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.11,
+    0.445
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_8": {
+   "id": "coral_sinkhole_8",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.177,
+    0.677
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_9": {
+   "id": "coral_sinkhole_9",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.12,
+    0.376
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_10": {
+   "id": "coral_sinkhole_10",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.127,
+    0.356
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_11": {
+   "id": "coral_sinkhole_11",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.11900000000000001,
+    0.387
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_12": {
+   "id": "coral_sinkhole_12",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.11800000000000001,
+    0.263
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_13": {
+   "id": "coral_sinkhole_13",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.134,
+    0.279
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_14": {
+   "id": "coral_sinkhole_14",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.307,
+    0.158
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_15": {
+   "id": "coral_sinkhole_15",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.343,
+    0.115
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_16": {
+   "id": "coral_sinkhole_16",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.45,
+    0.076
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_17": {
+   "id": "coral_sinkhole_17",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.455,
+    0.178
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_18": {
+   "id": "coral_sinkhole_18",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.424,
+    0.266
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_19": {
+   "id": "coral_sinkhole_19",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.342,
+    0.317
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "coral_sinkhole_20": {
+   "id": "coral_sinkhole_20",
+   "name": "Коралловый провал",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.261,
+    0.354
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
     "services": []
    }
   }
