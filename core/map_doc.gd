@@ -483,7 +483,7 @@ func to_project() -> Dictionary:
 static func from_project(d: Dictionary, file: String = "") -> MapDoc:
 	var doc := MapDoc.new()
 	doc.path = file
-	doc.game = str(d.get("game", "")).replace("\\", "/").trim_suffix("/")
+	doc.game = resolve_path(str(d.get("game", "")), file)
 	doc.region = str(d.get("region", ""))
 	doc.chapter = str(d.get("chapter", ""))
 	doc.packs = Array(d.get("packs", []))
@@ -507,6 +507,14 @@ func save(file: String = "") -> String:
 		dirty = false
 		changed.emit("saved")
 	return err
+
+
+## Путь из проекта: относительный (переносимые примеры) — от папки файла проекта.
+static func resolve_path(p: String, project_file: String) -> String:
+	p = p.replace("\\", "/").trim_suffix("/")
+	if p == "" or project_file == "" or p.is_absolute_path():
+		return p
+	return project_file.replace("\\", "/").get_base_dir().path_join(p).simplify_path()
 
 
 static func load_project(file: String) -> MapDoc:

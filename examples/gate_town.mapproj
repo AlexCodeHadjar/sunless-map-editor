@@ -1,0 +1,716 @@
+{
+ "format": 1,
+ "game": "../../SunLess",
+ "region": "gate_town",
+ "chapter": "gate_town",
+ "packs": [
+  {
+   "id": "academy_map_kit",
+   "version": 1,
+   "path": "../../SunLess/docs/assets/kits/academy-map-kit"
+  },
+  {
+   "id": "game_forgotten_shore",
+   "version": 1,
+   "path": "../../SunLess/art/map/forgotten_shore"
+  },
+  {
+   "id": "real_city_map_kit",
+   "version": 1,
+   "path": "../../SunLess/docs/assets/kits/real-city-map-kit"
+  }
+ ],
+ "textures": {
+  "base": {
+   "pack": "academy_map_kit",
+   "tex": "base"
+  },
+  "fog_tile": {
+   "pack": "game_forgotten_shore",
+   "tex": "fog_tile"
+  },
+  "gt_wall_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "wall_dry"
+  },
+  "gt_wall_breached": {
+   "pack": "real_city_map_kit",
+   "tex": "wall_breached"
+  },
+  "gt_bunker_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "bunker_dry"
+  },
+  "gt_bunker_crowded": {
+   "pack": "real_city_map_kit",
+   "tex": "bunker_crowded"
+  },
+  "gt_bunker_sealed": {
+   "pack": "real_city_map_kit",
+   "tex": "bunker_sealed"
+  },
+  "gt_market_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "market_dry"
+  },
+  "gt_market_alarm": {
+   "pack": "real_city_map_kit",
+   "tex": "market_alarm"
+  },
+  "gt_market_damaged": {
+   "pack": "real_city_map_kit",
+   "tex": "market_damaged"
+  },
+  "gt_market_fight": {
+   "pack": "real_city_map_kit",
+   "tex": "market_fight"
+  },
+  "gt_market_repair": {
+   "pack": "real_city_map_kit",
+   "tex": "market_repair"
+  },
+  "gt_market_ruined": {
+   "pack": "real_city_map_kit",
+   "tex": "market_ruined"
+  },
+  "gt_hospital_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "hospital_dry"
+  },
+  "gt_hospital_alarm": {
+   "pack": "real_city_map_kit",
+   "tex": "hospital_alarm"
+  },
+  "gt_hospital_damaged": {
+   "pack": "real_city_map_kit",
+   "tex": "hospital_damaged"
+  },
+  "gt_hospital_overcrowded": {
+   "pack": "real_city_map_kit",
+   "tex": "hospital_overcrowded"
+  },
+  "gt_council_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "gov_quarter_dry"
+  },
+  "gt_council_alarm": {
+   "pack": "real_city_map_kit",
+   "tex": "gov_quarter_alarm"
+  },
+  "gt_council_damaged": {
+   "pack": "real_city_map_kit",
+   "tex": "gov_quarter_damaged"
+  },
+  "gt_council_fight": {
+   "pack": "real_city_map_kit",
+   "tex": "gov_quarter_fight"
+  },
+  "gt_works_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "industry_dry"
+  },
+  "gt_works_alarm": {
+   "pack": "real_city_map_kit",
+   "tex": "industry_alarm"
+  },
+  "gt_works_damaged": {
+   "pack": "real_city_map_kit",
+   "tex": "industry_damaged"
+  },
+  "gt_works_fight": {
+   "pack": "real_city_map_kit",
+   "tex": "industry_fight"
+  },
+  "gt_works_repair": {
+   "pack": "real_city_map_kit",
+   "tex": "industry_repair"
+  },
+  "gt_works_ruined": {
+   "pack": "real_city_map_kit",
+   "tex": "industry_ruined"
+  },
+  "gt_center_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "old_center_dry"
+  },
+  "gt_center_alarm": {
+   "pack": "real_city_map_kit",
+   "tex": "old_center_alarm"
+  },
+  "gt_center_damaged": {
+   "pack": "real_city_map_kit",
+   "tex": "old_center_damaged"
+  },
+  "gt_center_fight": {
+   "pack": "real_city_map_kit",
+   "tex": "old_center_fight"
+  },
+  "gt_center_repair": {
+   "pack": "real_city_map_kit",
+   "tex": "old_center_repair"
+  },
+  "gt_center_ruined": {
+   "pack": "real_city_map_kit",
+   "tex": "old_center_ruined"
+  },
+  "gt_station_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "monorail_dry"
+  },
+  "gt_station_alarm": {
+   "pack": "real_city_map_kit",
+   "tex": "monorail_alarm"
+  },
+  "gt_station_closed": {
+   "pack": "real_city_map_kit",
+   "tex": "monorail_closed"
+  },
+  "gt_station_damaged": {
+   "pack": "real_city_map_kit",
+   "tex": "monorail_damaged"
+  },
+  "gt_station_fight": {
+   "pack": "real_city_map_kit",
+   "tex": "monorail_fight"
+  },
+  "gt_station_repair": {
+   "pack": "real_city_map_kit",
+   "tex": "monorail_repair"
+  },
+  "gt_station_ruined": {
+   "pack": "real_city_map_kit",
+   "tex": "monorail_ruined"
+  },
+  "gt_metro_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "metro_hub_dry"
+  },
+  "gt_metro_closed": {
+   "pack": "real_city_map_kit",
+   "tex": "metro_hub_closed"
+  },
+  "gt_metro_flooded": {
+   "pack": "real_city_map_kit",
+   "tex": "metro_hub_flooded"
+  },
+  "gt_metro_infested": {
+   "pack": "real_city_map_kit",
+   "tex": "metro_hub_infested"
+  },
+  "gt_park_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "park_dry"
+  },
+  "gt_park_burned": {
+   "pack": "real_city_map_kit",
+   "tex": "park_burned"
+  },
+  "gt_park_fight": {
+   "pack": "real_city_map_kit",
+   "tex": "park_fight"
+  },
+  "gt_road_dry": {
+   "pack": "real_city_map_kit",
+   "tex": "academy_link_dry"
+  },
+  "gt_road_closed": {
+   "pack": "real_city_map_kit",
+   "tex": "academy_link_closed"
+  },
+  "decal_police_tape": {
+   "pack": "real_city_map_kit",
+   "tex": "decal_police_tape"
+  },
+  "decal_bus_evac": {
+   "pack": "real_city_map_kit",
+   "tex": "decal_bus_evac"
+  },
+  "decal_barricade": {
+   "pack": "real_city_map_kit",
+   "tex": "decal_barricade"
+  },
+  "road_cracks": {
+   "pack": "real_city_map_kit",
+   "tex": "road_cracks"
+  }
+ },
+ "map": {
+  "region": "gate_town",
+  "art": "res://art/map/gate_town/",
+  "base": "base.webp",
+  "fog": "fog_tile.webp",
+  "view_top": 0.04,
+  "foot": 0.28,
+  "zoom": 1.15,
+  "places": {
+   "gt_wall": {
+    "at": [
+     0.512,
+     0.775
+    ],
+    "size": 0.15,
+    "states": [
+     "dry",
+     "breached"
+    ]
+   },
+   "gt_bunker": {
+    "at": [
+     0.27,
+     0.555
+    ],
+    "size": 0.16,
+    "states": [
+     "dry",
+     "crowded",
+     "sealed"
+    ]
+   },
+   "gt_market": {
+    "at": [
+     0.518,
+     0.548
+    ],
+    "size": 0.15,
+    "states": [
+     "dry",
+     "alarm",
+     "damaged",
+     "fight",
+     "repair",
+     "ruined"
+    ]
+   },
+   "gt_hospital": {
+    "at": [
+     0.776,
+     0.54
+    ],
+    "size": 0.17,
+    "states": [
+     "dry",
+     "alarm",
+     "damaged",
+     "overcrowded"
+    ]
+   },
+   "gt_council": {
+    "at": [
+     0.705,
+     0.33
+    ],
+    "size": 0.17,
+    "states": [
+     "dry",
+     "alarm",
+     "damaged",
+     "fight"
+    ]
+   },
+   "gt_works": {
+    "at": [
+     0.275,
+     0.39
+    ],
+    "size": 0.17,
+    "states": [
+     "dry",
+     "alarm",
+     "damaged",
+     "fight",
+     "repair",
+     "ruined"
+    ]
+   },
+   "gt_center": {
+    "at": [
+     0.52,
+     0.335
+    ],
+    "size": 0.16,
+    "states": [
+     "dry",
+     "alarm",
+     "damaged",
+     "fight",
+     "repair",
+     "ruined"
+    ]
+   },
+   "gt_station": {
+    "at": [
+     0.53,
+     0.11
+    ],
+    "size": 0.15,
+    "states": [
+     "dry",
+     "alarm",
+     "closed",
+     "damaged",
+     "fight",
+     "repair",
+     "ruined"
+    ]
+   },
+   "gt_metro": {
+    "at": [
+     0.35000000000000003,
+     0.19
+    ],
+    "size": 0.11,
+    "states": [
+     "dry",
+     "closed",
+     "flooded",
+     "infested"
+    ]
+   },
+   "gt_park": {
+    "at": [
+     0.2,
+     0.2
+    ],
+    "size": 0.15,
+    "states": [
+     "dry",
+     "burned",
+     "fight"
+    ]
+   },
+   "gt_road": {
+    "at": [
+     0.8300000000000001,
+     0.18
+    ],
+    "size": 0.13,
+    "states": [
+     "dry",
+     "closed"
+    ]
+   }
+  },
+  "paths": [
+   [
+    "gt_wall",
+    "gt_market"
+   ],
+   [
+    "gt_wall",
+    "gt_bunker"
+   ],
+   [
+    "gt_wall",
+    "gt_hospital"
+   ],
+   [
+    "gt_bunker",
+    "gt_market"
+   ],
+   [
+    "gt_bunker",
+    "gt_works"
+   ],
+   [
+    "gt_market",
+    "gt_center"
+   ],
+   [
+    "gt_market",
+    "gt_hospital"
+   ],
+   [
+    "gt_hospital",
+    "gt_council"
+   ],
+   [
+    "gt_works",
+    "gt_center"
+   ],
+   [
+    "gt_works",
+    "gt_park"
+   ],
+   [
+    "gt_works",
+    "gt_metro"
+   ],
+   [
+    "gt_center",
+    "gt_council"
+   ],
+   [
+    "gt_center",
+    "gt_metro"
+   ],
+   [
+    "gt_metro",
+    "gt_station"
+   ],
+   [
+    "gt_park",
+    "gt_metro"
+   ],
+   [
+    "gt_council",
+    "gt_road"
+   ],
+   [
+    "gt_station",
+    "gt_road"
+   ]
+  ],
+  "place_decals": [
+   {
+    "decal": "decal_police_tape",
+    "place": "gt_market",
+    "phase": [
+     "night"
+    ]
+   },
+   {
+    "decal": "decal_bus_evac",
+    "place": "gt_bunker"
+   },
+   {
+    "decal": "decal_barricade",
+    "place": "gt_wall"
+   }
+  ],
+  "path_decals": [
+   {
+    "decal": "road_cracks",
+    "path": [
+     "gt_wall",
+     "gt_market"
+    ]
+   }
+  ],
+  "phase_states": {
+   "gt_wall": {
+    "night": "breached"
+   },
+   "gt_market": {
+    "night": "alarm"
+   }
+  }
+ },
+ "locations": {
+  "gt_wall": {
+   "id": "gt_wall",
+   "name": "Пролом в стене",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.512,
+    0.775
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 6,
+    "beds": 0,
+    "danger": 0.35,
+    "services": []
+   }
+  },
+  "gt_bunker": {
+   "id": "gt_bunker",
+   "name": "Убежище под общежитием",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.27,
+    0.555
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 25,
+    "beds": 2,
+    "danger": 0.05,
+    "services": [
+     "view"
+    ]
+   }
+  },
+  "gt_market": {
+   "id": "gt_market",
+   "name": "Рынок у ворот",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.518,
+    0.548
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "gt_hospital": {
+   "id": "gt_hospital",
+   "name": "Полевой госпиталь",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.776,
+    0.54
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 14,
+    "beds": 1,
+    "danger": 0.15,
+    "services": [
+     "repair"
+    ]
+   }
+  },
+  "gt_council": {
+   "id": "gt_council",
+   "name": "Совет города",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.705,
+    0.33
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 14,
+    "beds": 1,
+    "danger": 0.15,
+    "services": []
+   }
+  },
+  "gt_works": {
+   "id": "gt_works",
+   "name": "Мастерские",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.275,
+    0.39
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "gt_center": {
+   "id": "gt_center",
+   "name": "Старая площадь",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.52,
+    0.335
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "gt_station": {
+   "id": "gt_station",
+   "name": "Станция монорельса",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.53,
+    0.11
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 14,
+    "beds": 1,
+    "danger": 0.15,
+    "services": [
+     "view"
+    ]
+   }
+  },
+  "gt_metro": {
+   "id": "gt_metro",
+   "name": "Спуск в подземку",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.35000000000000003,
+    0.19
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "gt_park": {
+   "id": "gt_park",
+   "name": "Заросший парк",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.2,
+    0.2
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 6,
+    "beds": 0,
+    "danger": 0.35,
+    "services": []
+   }
+  },
+  "gt_road": {
+   "id": "gt_road",
+   "name": "Дорога к Академии",
+   "chapter": "gate_town",
+   "region": "gate_town",
+   "pos": [
+    0.8300000000000001,
+    0.18
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  }
+ },
+ "shops": {},
+ "editor": {
+  "view": [
+   0.5,
+   0.5,
+   1.0
+  ],
+  "layers": {},
+  "notes": {},
+  "bookmarks": [],
+  "aspect": 2.0
+ }
+}

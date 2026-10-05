@@ -54,6 +54,8 @@ func _run() -> void:
 			await _v2_flow()
 		"v3":
 			await _v3_flow()
+		"examples":
+			await _examples_flow()
 	get_tree().quit()
 
 
@@ -215,3 +217,28 @@ func _v3_flow() -> void:
 		c.brush_at(Vector2(0.43, 0.55), "raise")
 	await settle()
 	await shot("33_brush_weather")
+
+
+## Примеры новых карт (examples/*.mapproj) в окне редактора.
+func _examples_flow() -> void:
+	var dir := ProjectSettings.globalize_path("res://examples")
+	main.open_project(dir + "/night_shore.mapproj")
+	main.phase_pick.select(6)
+	main.phase_pick.item_selected.emit(6)
+	main.canvas.select_place("ns_watch")
+	main.props.rebuild()
+	await settle()
+	await shot("40_night_shore_blood_moon")
+	main.open_project(dir + "/ash_pass.mapproj")
+	main.phase_pick.select(4)
+	main.phase_pick.item_selected.emit(4)
+	main.canvas.select_thing({"kind": "zone", "id": "wrath"})
+	main.props.rebuild()
+	await settle()
+	await shot("41_ash_pass_night")
+	main.open_project(dir + "/gate_town.mapproj")
+	main.mode_buttons.graph.button_pressed = true
+	main.canvas.select_place("gt_bunker")
+	main.props.rebuild()
+	await settle()
+	await shot("42_gate_town_graph")

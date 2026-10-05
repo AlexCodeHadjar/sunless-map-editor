@@ -1,0 +1,625 @@
+[
+ {
+  "op": "base.set",
+  "pack": "sunless_map_kit",
+  "tex": "base"
+ },
+ {
+  "op": "height.set",
+  "pack": "sunless_map_kit",
+  "tex": "height"
+ },
+ {
+  "op": "tile.set",
+  "slot": "water",
+  "pack": "sunless_map_kit",
+  "tex": "water_tile"
+ },
+ {
+  "op": "tile.set",
+  "slot": "fog",
+  "pack": "sunless_map_kit",
+  "tex": "fog_tile"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "stone_isle",
+  "id": "ns_isle",
+  "at": [
+   0.69,
+   0.712
+  ],
+  "size": 0.1,
+  "name": "Причальный камень"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_isle",
+  "height": "high"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "low_tide",
+  "id": "ns_shallows",
+  "at": [
+   0.34,
+   0.7
+  ],
+  "size": 0.15,
+  "name": "Мёртвая отмель"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_shallows",
+  "height": "low"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "coral_maze",
+  "id": "ns_maze",
+  "at": [
+   0.428,
+   0.54
+  ],
+  "size": 0.16,
+  "name": "Кровавый лабиринт"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_maze",
+  "height": "low"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "shelter",
+  "id": "ns_shelter",
+  "at": [
+   0.606,
+   0.53
+  ],
+  "size": 0.12,
+  "name": "Тёмная расщелина"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_shelter",
+  "height": "high"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "centurion_gate",
+  "id": "ns_gate",
+  "at": [
+   0.33,
+   0.37
+  ],
+  "size": 0.13,
+  "name": "Ворота Центуриона"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_gate",
+  "height": "mid"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "high_ground",
+  "id": "ns_watch",
+  "at": [
+   0.492,
+   0.35
+  ],
+  "size": 0.12,
+  "name": "Ночной дозор"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_watch",
+  "height": "high"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "hunting_grounds",
+  "id": "ns_hunt",
+  "at": [
+   0.636,
+   0.375
+  ],
+  "size": 0.13,
+  "name": "Охотничьи тропы"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_hunt",
+  "height": "low"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "drowned_hall",
+  "id": "ns_hall",
+  "at": [
+   0.762,
+   0.255
+  ],
+  "size": 0.14,
+  "name": "Утонувший зал"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_hall",
+  "height": "mid"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "statue_hill",
+  "id": "ns_statue",
+  "at": [
+   0.396,
+   0.225
+  ],
+  "size": 0.12,
+  "name": "Безликая статуя"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_statue",
+  "height": "high"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "legion_ruins",
+  "id": "ns_legion",
+  "at": [
+   0.555,
+   0.205
+  ],
+  "size": 0.13,
+  "name": "Лагерь Легиона"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_legion",
+  "height": "mid"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "spire_view",
+  "id": "ns_ridge",
+  "at": [
+   0.245,
+   0.255
+  ],
+  "size": 0.2,
+  "name": "Хребет у Шпиля"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_ridge",
+  "height": "high"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_events_kit",
+  "place": "whale_carcass",
+  "id": "ns_whale",
+  "at": [
+   0.53,
+   0.7
+  ],
+  "size": 0.13,
+  "name": "Туша исполина"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_whale",
+  "height": "low"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_events_kit",
+  "place": "legion_well",
+  "id": "ns_well",
+  "at": [
+   0.3,
+   0.508
+  ],
+  "size": 0.11,
+  "name": "Колодец Легиона"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_well",
+  "height": "mid"
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_events_kit",
+  "place": "messenger_nest",
+  "id": "ns_nest",
+  "at": [
+   0.65,
+   0.275
+  ],
+  "size": 0.11,
+  "name": "Гнездо посланника"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_nest",
+  "height": "mid"
+ },
+ {
+  "op": "state.default",
+  "id": "ns_whale",
+  "state": "fresh"
+ },
+ {
+  "op": "state.default",
+  "id": "ns_well",
+  "state": "buried"
+ },
+ {
+  "op": "state.default",
+  "id": "ns_nest",
+  "state": "occupied"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_isle",
+  "b": "ns_shelter",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_shelter",
+  "b": "ns_watch",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_watch",
+  "b": "ns_statue",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_statue",
+  "b": "ns_ridge",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_watch",
+  "b": "ns_nest",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_nest",
+  "b": "ns_shelter",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_isle",
+  "b": "ns_shallows",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_ridge",
+  "b": "ns_gate",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_shallows",
+  "b": "ns_maze",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_maze",
+  "b": "ns_well",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_well",
+  "b": "ns_gate",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_maze",
+  "b": "ns_shelter",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_hunt",
+  "b": "ns_shelter",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_hunt",
+  "b": "ns_hall",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_hall",
+  "b": "ns_nest",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_legion",
+  "b": "ns_statue",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_legion",
+  "b": "ns_watch",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_whale",
+  "b": "ns_shallows",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "ns_whale",
+  "b": "ns_isle",
+  "kind": "path"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_isle",
+  "camp": {
+   "rest": 25,
+   "beds": 2,
+   "danger": 0.05,
+   "services": [
+    "view"
+   ]
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "ns_watch",
+  "camp": {
+   "rest": 25,
+   "beds": 2,
+   "danger": 0.05,
+   "services": [
+    "view"
+   ]
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "ns_statue",
+  "camp": {
+   "rest": 14,
+   "beds": 1,
+   "danger": 0.15,
+   "services": []
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "ns_ridge",
+  "camp": {
+   "rest": 14,
+   "beds": 1,
+   "danger": 0.15,
+   "services": []
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "ns_shelter",
+  "camp": {
+   "rest": 14,
+   "beds": 1,
+   "danger": 0.15,
+   "services": []
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "ns_maze",
+  "camp": {
+   "rest": 6,
+   "beds": 0,
+   "danger": 0.35,
+   "services": []
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "ns_hall",
+  "camp": {
+   "rest": 6,
+   "beds": 0,
+   "danger": 0.35,
+   "services": []
+  }
+ },
+ {
+  "op": "socket.add",
+  "at": [
+   0.783,
+   0.583
+  ]
+ },
+ {
+  "op": "socket.add",
+  "at": [
+   0.215,
+   0.79
+  ]
+ },
+ {
+  "op": "socket.add",
+  "at": [
+   0.44,
+   0.88
+  ]
+ },
+ {
+  "op": "socket.add",
+  "at": [
+   0.3,
+   0.105
+  ]
+ },
+ {
+  "op": "map.set",
+  "key": "ebb_sockets",
+  "value": [
+   0,
+   1,
+   2,
+   3
+  ]
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "sunken_watch",
+  "id": "ns_tower",
+  "at": [
+   0.5,
+   0.5
+  ],
+  "size": 0.11,
+  "name": "Утонувшая башня"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_tower",
+  "emerge": true,
+  "height": "low",
+  "camp": {
+   "rest": 6,
+   "beds": 0,
+   "danger": 0.35,
+   "services": []
+  }
+ },
+ {
+  "op": "place.add",
+  "pack": "sunless_map_kit",
+  "place": "shell_field",
+  "id": "ns_shells",
+  "at": [
+   0.5,
+   0.5
+  ],
+  "size": 0.11,
+  "name": "Поле раковин"
+ },
+ {
+  "op": "place.set",
+  "id": "ns_shells",
+  "emerge": true,
+  "height": "low",
+  "camp": {
+   "rest": 6,
+   "beds": 0,
+   "danger": 0.35,
+   "services": []
+  }
+ },
+ {
+  "op": "state.add",
+  "id": "ns_watch",
+  "pack": "sunless_map_events_kit",
+  "tex": "high_ground_beacon",
+  "state": "beacon"
+ },
+ {
+  "op": "state.add",
+  "id": "ns_maze",
+  "pack": "sunless_map_events_kit",
+  "tex": "coral_maze_burning",
+  "state": "burning"
+ },
+ {
+  "op": "map.set",
+  "key": "phase_states",
+  "value": {
+   "ns_watch": {
+    "night": "beacon",
+    "blood_moon": "beacon"
+   },
+   "ns_maze": {
+    "blood_moon": "burning"
+   }
+  }
+ },
+ {
+  "op": "decal.add",
+  "pack": "sunless_map_events_kit",
+  "tex": "decal_blood_pools",
+  "place": "ns_shallows",
+  "phase": [
+   "blood_moon"
+  ]
+ },
+ {
+  "op": "decal.add",
+  "pack": "sunless_map_events_kit",
+  "tex": "decal_ghost_column",
+  "place": "ns_legion",
+  "phase": [
+   "night"
+  ]
+ },
+ {
+  "op": "decal.add",
+  "pack": "sunless_map_events_kit",
+  "tex": "decal_moon_reflection",
+  "place": "ns_whale",
+  "phase": [
+   "blood_moon"
+  ]
+ },
+ {
+  "op": "texture.set",
+  "pack": "sunless_map_events_kit",
+  "tex": "crimson_haze"
+ },
+ {
+  "op": "map.set",
+  "key": "haze",
+  "value": {
+   "tex": "crimson_haze",
+   "phase": [
+    "blood_moon"
+   ]
+  }
+ },
+ {
+  "op": "map.set",
+  "key": "view_top",
+  "value": 0.08
+ }
+]

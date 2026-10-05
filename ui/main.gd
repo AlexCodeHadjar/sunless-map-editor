@@ -361,7 +361,7 @@ func open_project(file: String) -> void:
 func _relink_packs(d: MapDoc) -> void:
 	for p: Dictionary in d.packs:
 		if lib.get_pack(str(p.get("id", ""))) == null and str(p.get("path", "")) != "":
-			var path := str(p.path)
+			var path := MapDoc.resolve_path(str(p.path), d.path)
 			if DirAccess.dir_exists_absolute(path) or FileAccess.file_exists(path):
 				lib.add(path, str(p.id))
 

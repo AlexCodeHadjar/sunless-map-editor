@@ -1,0 +1,360 @@
+[
+ {
+  "op": "base.set",
+  "pack": "academy_map_kit",
+  "tex": "base"
+ },
+ {
+  "op": "tile.set",
+  "slot": "fog",
+  "pack": "game_forgotten_shore",
+  "tex": "fog_tile"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "wall",
+  "id": "gt_wall",
+  "at": [
+   0.512,
+   0.775
+  ],
+  "size": 0.15,
+  "name": "Пролом в стене"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "bunker",
+  "id": "gt_bunker",
+  "at": [
+   0.27,
+   0.555
+  ],
+  "size": 0.16,
+  "name": "Убежище под общежитием"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "market",
+  "id": "gt_market",
+  "at": [
+   0.518,
+   0.548
+  ],
+  "size": 0.15,
+  "name": "Рынок у ворот"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "hospital",
+  "id": "gt_hospital",
+  "at": [
+   0.776,
+   0.54
+  ],
+  "size": 0.17,
+  "name": "Полевой госпиталь"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "gov_quarter",
+  "id": "gt_council",
+  "at": [
+   0.705,
+   0.33
+  ],
+  "size": 0.17,
+  "name": "Совет города"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "industry",
+  "id": "gt_works",
+  "at": [
+   0.275,
+   0.39
+  ],
+  "size": 0.17,
+  "name": "Мастерские"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "old_center",
+  "id": "gt_center",
+  "at": [
+   0.52,
+   0.335
+  ],
+  "size": 0.16,
+  "name": "Старая площадь"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "monorail",
+  "id": "gt_station",
+  "at": [
+   0.53,
+   0.11
+  ],
+  "size": 0.15,
+  "name": "Станция монорельса"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "metro_hub",
+  "id": "gt_metro",
+  "at": [
+   0.35,
+   0.19
+  ],
+  "size": 0.11,
+  "name": "Спуск в подземку"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "park",
+  "id": "gt_park",
+  "at": [
+   0.2,
+   0.2
+  ],
+  "size": 0.15,
+  "name": "Заросший парк"
+ },
+ {
+  "op": "place.add",
+  "pack": "real_city_map_kit",
+  "place": "academy_link",
+  "id": "gt_road",
+  "at": [
+   0.83,
+   0.18
+  ],
+  "size": 0.13,
+  "name": "Дорога к Академии"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_wall",
+  "b": "gt_market",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_wall",
+  "b": "gt_bunker",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_wall",
+  "b": "gt_hospital",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_bunker",
+  "b": "gt_market",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_bunker",
+  "b": "gt_works",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_market",
+  "b": "gt_center",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_market",
+  "b": "gt_hospital",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_hospital",
+  "b": "gt_council",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_works",
+  "b": "gt_center",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_works",
+  "b": "gt_park",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_works",
+  "b": "gt_metro",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_center",
+  "b": "gt_council",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_center",
+  "b": "gt_metro",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_metro",
+  "b": "gt_station",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_park",
+  "b": "gt_metro",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_council",
+  "b": "gt_road",
+  "kind": "path"
+ },
+ {
+  "op": "path.add",
+  "a": "gt_station",
+  "b": "gt_road",
+  "kind": "path"
+ },
+ {
+  "op": "place.set",
+  "id": "gt_bunker",
+  "camp": {
+   "rest": 25,
+   "beds": 2,
+   "danger": 0.05,
+   "services": [
+    "view"
+   ]
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "gt_hospital",
+  "camp": {
+   "rest": 14,
+   "beds": 1,
+   "danger": 0.15,
+   "services": [
+    "repair"
+   ]
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "gt_council",
+  "camp": {
+   "rest": 14,
+   "beds": 1,
+   "danger": 0.15,
+   "services": []
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "gt_station",
+  "camp": {
+   "rest": 14,
+   "beds": 1,
+   "danger": 0.15,
+   "services": [
+    "view"
+   ]
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "gt_wall",
+  "camp": {
+   "rest": 6,
+   "beds": 0,
+   "danger": 0.35,
+   "services": []
+  }
+ },
+ {
+  "op": "place.set",
+  "id": "gt_park",
+  "camp": {
+   "rest": 6,
+   "beds": 0,
+   "danger": 0.35,
+   "services": []
+  }
+ },
+ {
+  "op": "decal.add",
+  "pack": "real_city_map_kit",
+  "tex": "decal_police_tape",
+  "place": "gt_market",
+  "phase": [
+   "night"
+  ]
+ },
+ {
+  "op": "decal.add",
+  "pack": "real_city_map_kit",
+  "tex": "decal_bus_evac",
+  "place": "gt_bunker"
+ },
+ {
+  "op": "decal.add",
+  "pack": "real_city_map_kit",
+  "tex": "decal_barricade",
+  "place": "gt_wall"
+ },
+ {
+  "op": "decal.add",
+  "pack": "real_city_map_kit",
+  "tex": "road_cracks",
+  "path": [
+   "gt_wall",
+   "gt_market"
+  ]
+ },
+ {
+  "op": "map.set",
+  "key": "phase_states",
+  "value": {
+   "gt_wall": {
+    "night": "breached"
+   },
+   "gt_market": {
+    "night": "alarm"
+   }
+  }
+ },
+ {
+  "op": "map.set",
+  "key": "view_top",
+  "value": 0.04
+ }
+]

@@ -1,0 +1,815 @@
+{
+ "format": 1,
+ "game": "../../SunLess",
+ "region": "ash_pass",
+ "chapter": "ash_pass",
+ "packs": [
+  {
+   "id": "sunless_chapter4_map_kit",
+   "version": 1,
+   "path": "../../SunLess/docs/assets/kits/sunless-chapter4-map-kit"
+  },
+  {
+   "id": "game_forgotten_shore",
+   "version": 1,
+   "path": "../../SunLess/art/map/forgotten_shore"
+  },
+  {
+   "id": "sunless_map_events_kit",
+   "version": 1,
+   "path": "../../SunLess/docs/assets/kits/sunless-map-events-kit"
+  }
+ ],
+ "textures": {
+  "base": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "base"
+  },
+  "fog_tile": {
+   "pack": "game_forgotten_shore",
+   "tex": "fog_tile"
+  },
+  "pass_camp_abandoned": {
+   "pack": "sunless_map_events_kit",
+   "tex": "strangers_camp_abandoned"
+  },
+  "pass_camp_flooded": {
+   "pack": "sunless_map_events_kit",
+   "tex": "strangers_camp_flooded"
+  },
+  "pass_camp_occupied": {
+   "pack": "sunless_map_events_kit",
+   "tex": "strangers_camp_occupied"
+  },
+  "pass_camp_ravaged": {
+   "pack": "sunless_map_events_kit",
+   "tex": "strangers_camp_ravaged"
+  },
+  "pass_dunes_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_dunes_dry"
+  },
+  "pass_dunes_dry_b": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_dunes_dry_b"
+  },
+  "pass_dunes_dry_c": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_dunes_dry_c"
+  },
+  "pass_dunes_storm": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_dunes_storm"
+  },
+  "pass_graveyard_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "giant_graveyard_dry"
+  },
+  "pass_lord_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_lord_dry"
+  },
+  "pass_lord_wrath": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_lord_wrath"
+  },
+  "pass_hulk_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "stone_hulk_dry"
+  },
+  "pass_hulk_buried": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "stone_hulk_buried"
+  },
+  "pass_beacon_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "death_beacon_dry"
+  },
+  "pass_beacon_lit": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "death_beacon_lit"
+  },
+  "pass_bridge_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "abyss_bridge_dry"
+  },
+  "pass_bridge_collapsed": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "abyss_bridge_collapsed"
+  },
+  "pass_bridge_cracked": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "abyss_bridge_cracked"
+  },
+  "pass_bones_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_bones_dry"
+  },
+  "pass_bones_storm": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "ash_bones_storm"
+  },
+  "pass_trail_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "demon_trail_dry"
+  },
+  "pass_trail_hunted": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "demon_trail_hunted"
+  },
+  "pass_edge_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "abyss_edge_dry"
+  },
+  "pass_edge_storm": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "abyss_edge_storm"
+  },
+  "pass_star_dim": {
+   "pack": "sunless_map_events_kit",
+   "tex": "fallen_star_dim"
+  },
+  "pass_star_glowing": {
+   "pack": "sunless_map_events_kit",
+   "tex": "fallen_star_glowing"
+  },
+  "pass_golem_broken": {
+   "pack": "sunless_map_events_kit",
+   "tex": "sleeping_golem_broken"
+  },
+  "pass_golem_dormant": {
+   "pack": "sunless_map_events_kit",
+   "tex": "sleeping_golem_dormant"
+  },
+  "pass_idol_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "sunken_idol_dry"
+  },
+  "pass_tree_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "soul_tree_dry"
+  },
+  "pass_tree_charmed": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "soul_tree_charmed"
+  },
+  "pass_tree_night_glow": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "soul_tree_night_glow"
+  },
+  "pass_lake_dry": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "lake_shore_dry"
+  },
+  "pass_lake_charmed": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "lake_shore_charmed"
+  },
+  "decal_zone_wrath": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "decal_zone_wrath"
+  },
+  "decal_token_demon": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "decal_token_demon"
+  },
+  "decal_tracks_demon": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "decal_tracks_demon"
+  },
+  "decal_ash_storm_band": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "decal_ash_storm_band"
+  },
+  "decal_beacon_fire": {
+   "pack": "sunless_chapter4_map_kit",
+   "tex": "decal_beacon_fire"
+  }
+ },
+ "map": {
+  "region": "ash_pass",
+  "art": "res://art/map/ash_pass/",
+  "base": "base.webp",
+  "fog": "fog_tile.webp",
+  "view_top": 0.06,
+  "foot": 0.28,
+  "zoom": 1.15,
+  "places": {
+   "pass_camp": {
+    "at": [
+     0.86,
+     0.5
+    ],
+    "size": 0.13,
+    "states": [
+     "occupied",
+     "abandoned",
+     "flooded",
+     "ravaged"
+    ]
+   },
+   "pass_dunes": {
+    "at": [
+     0.8,
+     0.36
+    ],
+    "size": 0.16,
+    "states": [
+     "dry",
+     "dry_b",
+     "dry_c",
+     "storm"
+    ]
+   },
+   "pass_graveyard": {
+    "at": [
+     0.7000000000000001,
+     0.36
+    ],
+    "size": 0.12,
+    "states": [
+     "dry"
+    ]
+   },
+   "pass_lord": {
+    "at": [
+     0.63,
+     0.24
+    ],
+    "size": 0.2,
+    "states": [
+     "dry",
+     "wrath"
+    ]
+   },
+   "pass_hulk": {
+    "at": [
+     0.67,
+     0.5
+    ],
+    "size": 0.14,
+    "states": [
+     "dry",
+     "buried"
+    ]
+   },
+   "pass_beacon": {
+    "at": [
+     0.53,
+     0.4
+    ],
+    "size": 0.13,
+    "states": [
+     "dry",
+     "lit"
+    ]
+   },
+   "pass_bridge": {
+    "at": [
+     0.44,
+     0.3
+    ],
+    "size": 0.14,
+    "states": [
+     "dry",
+     "collapsed",
+     "cracked"
+    ]
+   },
+   "pass_bones": {
+    "at": [
+     0.74,
+     0.66
+    ],
+    "size": 0.18,
+    "states": [
+     "dry",
+     "storm"
+    ]
+   },
+   "pass_trail": {
+    "at": [
+     0.56,
+     0.68
+    ],
+    "size": 0.13,
+    "states": [
+     "dry",
+     "hunted"
+    ]
+   },
+   "pass_edge": {
+    "at": [
+     0.45,
+     0.66
+    ],
+    "size": 0.13,
+    "states": [
+     "dry",
+     "storm"
+    ]
+   },
+   "pass_star": {
+    "at": [
+     0.86,
+     0.76
+    ],
+    "size": 0.12,
+    "states": [
+     "glowing",
+     "dim"
+    ]
+   },
+   "pass_golem": {
+    "at": [
+     0.76,
+     0.8
+    ],
+    "size": 0.13,
+    "states": [
+     "dormant",
+     "broken"
+    ]
+   },
+   "pass_idol": {
+    "at": [
+     0.3,
+     0.34
+    ],
+    "size": 0.12,
+    "states": [
+     "dry"
+    ]
+   },
+   "pass_tree": {
+    "at": [
+     0.24,
+     0.46
+    ],
+    "size": 0.2,
+    "states": [
+     "dry",
+     "charmed",
+     "night_glow"
+    ]
+   },
+   "pass_lake": {
+    "at": [
+     0.35000000000000003,
+     0.52
+    ],
+    "size": 0.12,
+    "states": [
+     "dry",
+     "charmed"
+    ]
+   }
+  },
+  "paths": [
+   [
+    "pass_camp",
+    "pass_dunes"
+   ],
+   [
+    "pass_camp",
+    "pass_hulk"
+   ],
+   [
+    "pass_dunes",
+    "pass_graveyard"
+   ],
+   [
+    "pass_graveyard",
+    "pass_lord"
+   ],
+   [
+    "pass_graveyard",
+    "pass_hulk"
+   ],
+   [
+    "pass_hulk",
+    "pass_beacon"
+   ],
+   [
+    "pass_beacon",
+    "pass_lord"
+   ],
+   [
+    "pass_beacon",
+    "pass_bridge"
+   ],
+   [
+    "pass_bridge",
+    "pass_idol"
+   ],
+   [
+    "pass_idol",
+    "pass_tree"
+   ],
+   [
+    "pass_tree",
+    "pass_lake"
+   ],
+   [
+    "pass_lake",
+    "pass_edge"
+   ],
+   [
+    "pass_hulk",
+    "pass_bones"
+   ],
+   [
+    "pass_bones",
+    "pass_trail"
+   ],
+   [
+    "pass_trail",
+    "pass_edge"
+   ],
+   [
+    "pass_bones",
+    "pass_golem"
+   ],
+   [
+    "pass_golem",
+    "pass_star"
+   ],
+   [
+    "pass_star",
+    "pass_camp"
+   ]
+  ],
+  "fragile": {
+   "pass_bridge": {
+    "crossings": 4,
+    "storm": true,
+    "warn": "cracked"
+   }
+  },
+  "risky": [
+   {
+    "pair": [
+     "pass_trail",
+     "pass_edge"
+    ],
+    "name": "Спуск к Краю Бездны",
+    "req": {
+     "power": 7
+    },
+    "tags": [
+     "climb"
+    ]
+   }
+  ],
+  "phase_states": {
+   "pass_tree": {
+    "night": "night_glow",
+    "blood_moon": "night_glow"
+   },
+   "pass_lord": {
+    "night": "wrath",
+    "blood_moon": "wrath"
+   },
+   "pass_dunes": {
+    "ash_storm": "storm"
+   },
+   "pass_bones": {
+    "ash_storm": "storm"
+   }
+  },
+  "zones": {
+   "wrath": {
+    "name": "Гнев Владыки Пепла",
+    "center": "pass_lord",
+    "radius": {
+     "default": 0,
+     "night": 1,
+     "blood_moon": 2
+    },
+    "camp": {
+     "danger": 0.8
+    },
+    "pass_psyche": -4,
+    "color": [
+     1.0,
+     0.3,
+     0.2
+    ],
+    "decal": "decal_zone_wrath"
+   }
+  },
+  "movers": {
+   "demon": {
+    "name": "Демон-следопыт",
+    "start": "pass_bones",
+    "target": "camp",
+    "step": 1,
+    "enemy": "M05",
+    "token": "decal_token_demon",
+    "tracks": "decal_tracks_demon"
+   }
+  },
+  "storm_band": {
+   "tex": "decal_ash_storm_band",
+   "phase": [
+    "ash_storm"
+   ]
+  },
+  "place_decals": [
+   {
+    "decal": "decal_beacon_fire",
+    "place": "pass_beacon",
+    "phase": [
+     "night",
+     "blood_moon"
+    ]
+   }
+  ]
+ },
+ "locations": {
+  "pass_camp": {
+   "id": "pass_camp",
+   "name": "Перевальный лагерь",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.86,
+    0.5
+   ],
+   "height": "mid",
+   "text": "Остатки чужого каравана у входа на перевал: стены из повозок, костёр, который не гаснет.",
+   "camp": {
+    "rest": 25,
+    "beds": 2,
+    "danger": 0.05,
+    "services": [
+     "view"
+    ]
+   }
+  },
+  "pass_dunes": {
+   "id": "pass_dunes",
+   "name": "Пепельные дюны",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.8,
+    0.36
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 6,
+    "beds": 0,
+    "danger": 0.35,
+    "services": []
+   }
+  },
+  "pass_graveyard": {
+   "id": "pass_graveyard",
+   "name": "Кладбище гигантов",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.7000000000000001,
+    0.36
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_lord": {
+   "id": "pass_lord",
+   "name": "Трон Владыки Пепла",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.63,
+    0.24
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 6,
+    "beds": 0,
+    "danger": 0.35,
+    "services": []
+   }
+  },
+  "pass_hulk": {
+   "id": "pass_hulk",
+   "name": "Каменный остов",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.67,
+    0.5
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 14,
+    "beds": 1,
+    "danger": 0.15,
+    "services": []
+   }
+  },
+  "pass_beacon": {
+   "id": "pass_beacon",
+   "name": "Маяк на перевале",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.53,
+    0.4
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_bridge": {
+   "id": "pass_bridge",
+   "name": "Мост над Бездной",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.44,
+    0.3
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_bones": {
+   "id": "pass_bones",
+   "name": "Кости в пепле",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.74,
+    0.66
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 6,
+    "beds": 0,
+    "danger": 0.35,
+    "services": []
+   }
+  },
+  "pass_trail": {
+   "id": "pass_trail",
+   "name": "Тропа Демона",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.56,
+    0.68
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_edge": {
+   "id": "pass_edge",
+   "name": "Край Бездны",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.45,
+    0.66
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_star": {
+   "id": "pass_star",
+   "name": "Упавшая звезда",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.86,
+    0.76
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_golem": {
+   "id": "pass_golem",
+   "name": "Спящий голем",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.76,
+    0.8
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_idol": {
+   "id": "pass_idol",
+   "name": "Затонувший идол",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.3,
+    0.34
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 10,
+    "beds": 0,
+    "danger": 0.2,
+    "services": []
+   }
+  },
+  "pass_tree": {
+   "id": "pass_tree",
+   "name": "Древо за Бездной",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.24,
+    0.46
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 14,
+    "beds": 1,
+    "danger": 0.15,
+    "services": []
+   }
+  },
+  "pass_lake": {
+   "id": "pass_lake",
+   "name": "Чёрное озеро",
+   "chapter": "ash_pass",
+   "region": "ash_pass",
+   "pos": [
+    0.35000000000000003,
+    0.52
+   ],
+   "height": "mid",
+   "text": "",
+   "camp": {
+    "rest": 14,
+    "beds": 1,
+    "danger": 0.15,
+    "services": []
+   }
+  }
+ },
+ "shops": {},
+ "editor": {
+  "view": [
+   0.5,
+   0.5,
+   1.0
+  ],
+  "layers": {},
+  "notes": {},
+  "bookmarks": [],
+  "aspect": 2.0
+ }
+}

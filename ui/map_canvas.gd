@@ -54,6 +54,7 @@ var _drag := {}
 var _space := false
 var _mouse := Vector2.ZERO
 var _fitted := false
+var _auto_fit := true   ## пока карту не двигали и не масштабировали — вписывать при смене размера холста
 var _water_rect: ColorRect
 var _water_mat: ShaderMaterial
 var _fog_layer: FogLayer
@@ -64,7 +65,7 @@ func _ready() -> void:
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(func() -> void:
-		if not _fitted:
+		if not _fitted or _auto_fit:
 			fit())
 	_water_rect = ColorRect.new()
 	_water_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -142,6 +143,7 @@ func fit() -> void:
 	base_px = minf(size.x * 0.96, size.y * 0.96 * aspect())
 	pan = (size - Vector2(base_px, base_px / aspect())) / 2.0
 	_fitted = true
+	_auto_fit = true
 	queue_redraw()
 
 
@@ -160,6 +162,7 @@ func game_layout(view: Vector2) -> void:
 
 func zoom_at(factor: float, at: Vector2) -> void:
 	var m := to_map(at)
+	_auto_fit = false
 	base_px = clampf(base_px * factor, 200.0, 20000.0)
 	pan = at - Vector2(m.x * base_px, m.y * base_px / aspect())
 	queue_redraw()
@@ -997,6 +1000,7 @@ func _motion(p: Vector2, shift: bool) -> void:
 	match w:
 		"pan":
 			pan = Vector2(_drag.pan) + (p - Vector2(_drag.start))
+			_auto_fit = false
 			queue_redraw()
 		"move":
 			var k := 0.25 if shift else 1.0

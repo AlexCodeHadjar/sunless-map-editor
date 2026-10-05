@@ -75,7 +75,7 @@ For many edits use `batch ops.json` (one Godot start, one undo step). Ops:
 `state.add {id, pack, tex, state?}`, `state.remove {id, state}`, `state.default {id, state}`,
 `path.add|path.remove {a, b, kind: path|water}`, `socket.add {at}`, `socket.move {index, at}`, `socket.remove {index}`,
 `base.set|height.set {pack, tex}`, `tile.set {slot: fog|water, pack, tex}`,
-`decal.add {pack, tex, place | path:[a,b], phase?, from_day?}`, `map.set {key, value}`, `chapter.set {chapter}`.
+`decal.add {pack, tex, place | path:[a,b], phase?, from_day?}`, `texture.set {pack, tex, name?}` (where a picture named in zones/movers/weather comes from), `map.set {key, value}`, `chapter.set {chapter}`.
 
 ## Agent guidance
 

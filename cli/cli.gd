@@ -169,7 +169,7 @@ func _doc() -> MapDoc:
 		return null
 	for pk: Dictionary in d.packs:
 		if lib.get_pack(str(pk.get("id", ""))) == null and str(pk.get("path", "")) != "":
-			var path := str(pk.path)
+			var path := MapDoc.resolve_path(str(pk.path), d.path)
 			if DirAccess.dir_exists_absolute(path) or FileAccess.file_exists(path):
 				lib.add(path, str(pk.id))
 	if args.has("game") and str(args.game) != "true":
@@ -450,6 +450,14 @@ static func apply_op(d: MapDoc, op: Dictionary, lib: PackLibrary) -> Dictionary:
 			else:
 				d.map[k] = op.value
 			return {"key": k}
+		"texture.set":
+			# источник картинки, которую карта называет по имени (зона, угроза, погода): {name, pack, tex}
+			var p5: TexPack = lib.get_pack(str(op.get("pack", "")))
+			var tx := str(op.get("tex", op.get("name", "")))
+			if p5 == null or not p5.textures.has(tx):
+				return {"error": "нет текстуры %s в паке %s" % [tx, op.get("pack", "")]}
+			d.set_source(str(op.get("name", tx)), p5.id, tx)
+			return {"texture": str(op.get("name", tx))}
 		"chapter.set":
 			d.chapter = str(op.get("chapter", ""))
 			return {"chapter": d.chapter}
